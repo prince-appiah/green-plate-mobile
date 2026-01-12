@@ -1,12 +1,80 @@
 {
   "expo": {
-    "scheme": "acme",
-    "userInterfaceStyle": "automatic",
-    "orientation": "default",
-    "web": {
-      "output": "static"
-    },
     "name": "clean-plate",
-    "slug": "clean-plate"
+    "slug": "clean-plate",
+    "scheme": "acme",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.cleanplate.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#eff2f0"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}"
+        }
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cleanplate.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}"
+        }
+      }
+    },
+    "web": {
+      "output": "server"
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.610621271112-o11qvcqeqeilvjk8qr8ejl8e9el47t0a"
+        }
+      ],
+      [
+        "expo-asset",
+        {
+          "assets": [
+            "./src/assets/images/"
+          ]
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them.",
+          "cameraPermission": "The app accesses your camera to let you take photos."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "The app needs access to your camera to scan QR codes for order pickup verification."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location to show nearby restaurants and help you find food deals.",
+          "locationAlwaysPermission": "Allow $(PRODUCT_NAME) to use your location to show nearby restaurants and help you find food deals.",
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location to show nearby restaurants and help you find food deals."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "060f719c-255b-4ea6-b839-76589f54cb67"
+      }
+    }
   }
 }
