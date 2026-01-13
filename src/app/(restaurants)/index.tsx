@@ -252,7 +252,7 @@ export default function RestaurantListingsScreen() {
 
   return (
     <CustomSafeAreaView useSafeArea>
-      <View className="grow">
+      <View className="flex-1">
         {/* Header */}
         <View className="mb-6">
           <Text className="text-2xl font-bold text-[#1a2e1f] mb-2">
@@ -305,7 +305,7 @@ export default function RestaurantListingsScreen() {
           <ScrollView
             className="grow"
             contentContainerStyle={{
-              paddingBottom: tabBarHeight + 10,
+              // paddingBottom: tabBarHeight + 10,
             }}
             showsVerticalScrollIndicator={false}
             refreshControl={
@@ -530,9 +530,8 @@ function ListingCard({
               <TouchableOpacity
                 onPress={onPause}
                 disabled={isUpdating}
-                className={`flex-1 bg-[#fef3c7] rounded-xl py-2.5 flex-row items-center justify-center ${
-                  isUpdating ? "opacity-50" : ""
-                }`}
+                className={`flex-1 bg-[#fef3c7] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
+                  }`}
               >
                 {isUpdating ? (
                   <ActivityIndicator size="small" color="#f59e0b" />
@@ -549,9 +548,8 @@ function ListingCard({
               <TouchableOpacity
                 onPress={onActivate}
                 disabled={isUpdating}
-                className={`flex-1 bg-[#dcfce7] rounded-xl py-2.5 flex-row items-center justify-center ${
-                  isUpdating ? "opacity-50" : ""
-                }`}
+                className={`flex-1 bg-[#dcfce7] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
+                  }`}
               >
                 {isUpdating ? (
                   <ActivityIndicator size="small" color="#16a34a" />
@@ -568,9 +566,8 @@ function ListingCard({
           <TouchableOpacity
             onPress={onEdit}
             disabled={isUpdating}
-            className={`flex-1 bg-[#eff2f0] rounded-xl py-2.5 flex-row items-center justify-center ${
-              isUpdating ? "opacity-50" : ""
-            }`}
+            className={`flex-1 bg-[#eff2f0] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
+              }`}
           >
             <Ionicons name="create-outline" size={16} color="#657c69" />
             <Text className="text-[#657c69] font-semibold text-sm ml-1">
