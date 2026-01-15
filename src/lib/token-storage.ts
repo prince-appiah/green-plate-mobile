@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const AUTH_STORAGE_TOKEN_KEY = "@clean_plate:authToken";
+export const AUTH_STORAGE_TOKEN_KEY = "@clean_plate:accessToken";
 export const AUTH_STORAGE_REFRESH_TOKEN_KEY = "@clean_plate:refreshToken";
 
 export const tokenStorage = {
@@ -21,10 +21,7 @@ export const tokenStorage = {
   },
 
   async setTokens(accessToken: string, refreshToken: string): Promise<void> {
-    await Promise.all([
-      this.setToken(accessToken),
-      this.setRefreshToken(refreshToken),
-    ]);
+    await Promise.all([this.setToken(accessToken), this.setRefreshToken(refreshToken)]);
   },
 
   async clearTokens(): Promise<void> {

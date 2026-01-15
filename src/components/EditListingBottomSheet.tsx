@@ -175,23 +175,18 @@ export default function EditListingBottomSheet({
       return;
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const parseTimeString = (timeString: string): Date => {
-      const [hours, minutes] = timeString.split(":").map(Number);
-      const date = new Date(today);
-      date.setHours(hours, minutes, 0, 0);
-      return date;
+    // Format time strings from "HH:mm" to "HH:mm:ss" format
+    const formatTimeString = (timeString: string): string => {
+      // If already in HH:mm:ss format, return as is
+      if (timeString.split(":").length === 3) {
+        return timeString;
+      }
+      // Otherwise, add ":00" for seconds
+      return `${timeString}:00`;
     };
 
-    const pickupStartDate = parseTimeString(data.pickupStart);
-    let pickupEndDate = parseTimeString(data.pickupEnd);
-
-    if (pickupEndDate <= pickupStartDate) {
-      pickupEndDate = new Date(pickupEndDate);
-      pickupEndDate.setDate(pickupEndDate.getDate() + 1);
-    }
+    const pickupStartTime = formatTimeString(data.pickupStart);
+    const pickupEndTime = formatTimeString(data.pickupEnd);
 
     const payload = {
       listingId,
@@ -204,8 +199,8 @@ export default function EditListingBottomSheet({
       quantityTotal: Number(data.quantity),
       maxPerUser: Number(data.maxPerUser),
       pickup: {
-        startTime: pickupStartDate,
-        endTime: pickupEndDate,
+        startTime: pickupStartTime, // Send as time string
+        endTime: pickupEndTime,      // Send as time string
         location: {
           coordinates: locationData.coordinates,
         },

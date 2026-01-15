@@ -200,8 +200,8 @@ export default function RestaurantOrdersScreen() {
             <Text className="text-2xl font-bold text-[#1a2e1f]">Orders</Text>
             <TouchableOpacity
               onPress={() => setIsScannerVisible(true)}
-              className="bg-[#16a34a] rounded-xl px-4 py-2 flex-row items-center"
-              disabled={isVerifying}
+              className="bg-[#16a34a] rounded-xl px-4 py-2 flex-row items-center disabled:opacity-50"
+              disabled={isVerifying || reservations.length === 0}
             >
               <Ionicons name="qr-code-outline" size={20} color="#ffffff" />
               <Text className="text-white font-semibold ml-2">Scan QR</Text>
@@ -310,9 +310,8 @@ function OrderCard({ order, onUpdateStatus, formatTimeAgo, isUpdating = false }:
             <TouchableOpacity
               onPress={() => onUpdateStatus(order.id, "confirmed")}
               disabled={isUpdating}
-              className={`flex-1 bg-[#3b82f6] rounded-xl py-2.5 flex-row items-center justify-center mr-2 ${
-                isUpdating ? "opacity-50" : ""
-              }`}
+              className={`flex-1 bg-[#3b82f6] rounded-xl py-2.5 flex-row items-center justify-center mr-2 ${isUpdating ? "opacity-50" : ""
+                }`}
             >
               <Ionicons name="checkmark" size={16} color="#ffffff" />
               <Text className="text-white font-semibold text-sm ml-1">Confirm</Text>
@@ -320,9 +319,8 @@ function OrderCard({ order, onUpdateStatus, formatTimeAgo, isUpdating = false }:
             <TouchableOpacity
               onPress={() => onUpdateStatus(order.id, "cancelled")}
               disabled={isUpdating}
-              className={`flex-1 bg-[#fee2e2] rounded-xl py-2.5 flex-row items-center justify-center ${
-                isUpdating ? "opacity-50" : ""
-              }`}
+              className={`flex-1 bg-[#fee2e2] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
+                }`}
             >
               <Ionicons name="close" size={16} color="#ef4444" />
               <Text className="text-[#ef4444] font-semibold text-sm ml-1">Cancel</Text>
@@ -334,9 +332,8 @@ function OrderCard({ order, onUpdateStatus, formatTimeAgo, isUpdating = false }:
           <TouchableOpacity
             onPress={() => onUpdateStatus(order.id, "ready_for_pickup")}
             disabled={isUpdating}
-            className={`flex-1 bg-[#16a34a] rounded-xl py-2.5 flex-row items-center justify-center ${
-              isUpdating ? "opacity-50" : ""
-            }`}
+            className={`flex-1 bg-[#16a34a] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
+              }`}
           >
             <Ionicons name="checkmark-circle" size={16} color="#ffffff" />
             <Text className="text-white font-semibold text-sm ml-1">Mark Ready for Pickup</Text>
@@ -347,9 +344,8 @@ function OrderCard({ order, onUpdateStatus, formatTimeAgo, isUpdating = false }:
           <TouchableOpacity
             onPress={() => onUpdateStatus(order.id, "picked_up")}
             disabled={isUpdating}
-            className={`flex-1 bg-[#16a34a] rounded-xl py-2.5 flex-row items-center justify-center ${
-              isUpdating ? "opacity-50" : ""
-            }`}
+            className={`flex-1 bg-[#16a34a] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
+              }`}
           >
             <Ionicons name="checkmark-done" size={16} color="#ffffff" />
             <Text className="text-white font-semibold text-sm ml-1">Mark Picked Up</Text>
@@ -360,9 +356,8 @@ function OrderCard({ order, onUpdateStatus, formatTimeAgo, isUpdating = false }:
           <TouchableOpacity
             onPress={() => onUpdateStatus(order.id, "completed")}
             disabled={isUpdating}
-            className={`flex-1 bg-[#16a34a] rounded-xl py-2.5 flex-row items-center justify-center ${
-              isUpdating ? "opacity-50" : ""
-            }`}
+            className={`flex-1 bg-[#16a34a] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
+              }`}
           >
             <Ionicons name="checkmark-done" size={16} color="#ffffff" />
             <Text className="text-white font-semibold text-sm ml-1">Complete</Text>

@@ -34,5 +34,13 @@ export const createListingSchema = z.object({
   pickupEnd: z.string().min(1, "Pickup end time is required"),
   pickupInstructions: z.string().min(1, "Pickup instructions are required"),
 });
+// .refine((data) => data.salePrice < data.originalPrice, {
+//   message: "Sale price must be less than original price",
+//   path: ["salePrice"],
+// })
+// .refine((data) => data.pickupStart < data.pickupEnd, {
+//   message: "Pickup start time must be before pickup end time",
+//   path: ["pickupStart"],
+// });
 
 export type CreateListingFormData = z.infer<typeof createListingSchema>;

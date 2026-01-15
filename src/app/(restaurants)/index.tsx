@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
+import { format } from "date-fns";
 import {
   ActivityIndicator,
   Alert,
@@ -137,6 +138,13 @@ export default function RestaurantListingsScreen() {
   };
 
   // Handle pause listing (set isVisible to false)
+  // Helper function to extract time string from Date or ISO string
+  const extractTimeString = (time: Date | string): string => {
+    const date = typeof time === "string" ? new Date(time) : time;
+    // Format as "HH:mm:ss" using date-fns
+    return format(date, "HH:mm");
+  };
+
   const handlePauseListing = async (listingId: string) => {
     const fullListing = getFullListing(listingId);
     if (!fullListing) {
@@ -144,14 +152,8 @@ export default function RestaurantListingsScreen() {
       return;
     }
 
-    const startTime =
-      typeof fullListing.pickup.startTime === "string"
-        ? new Date(fullListing.pickup.startTime)
-        : fullListing.pickup.startTime;
-    const endTime =
-      typeof fullListing.pickup.endTime === "string"
-        ? new Date(fullListing.pickup.endTime)
-        : fullListing.pickup.endTime;
+    const startTime = extractTimeString(fullListing.pickup.startTime);
+    const endTime = extractTimeString(fullListing.pickup.endTime);
 
     const payload = {
       listingId,
@@ -164,8 +166,8 @@ export default function RestaurantListingsScreen() {
       quantityTotal: fullListing.quantityTotal,
       maxPerUser: fullListing.maxPerUser,
       pickup: {
-        startTime,
-        endTime,
+        startTime, // Send as time string
+        endTime, // Send as time string
         location: {
           coordinates: fullListing.pickup.location.coordinates,
         },
@@ -201,14 +203,8 @@ export default function RestaurantListingsScreen() {
       return;
     }
 
-    const startTime =
-      typeof fullListing.pickup.startTime === "string"
-        ? new Date(fullListing.pickup.startTime)
-        : fullListing.pickup.startTime;
-    const endTime =
-      typeof fullListing.pickup.endTime === "string"
-        ? new Date(fullListing.pickup.endTime)
-        : fullListing.pickup.endTime;
+    const startTime = extractTimeString(fullListing.pickup.startTime);
+    const endTime = extractTimeString(fullListing.pickup.endTime);
 
     const payload = {
       listingId,
@@ -221,8 +217,8 @@ export default function RestaurantListingsScreen() {
       quantityTotal: fullListing.quantityTotal,
       maxPerUser: fullListing.maxPerUser,
       pickup: {
-        startTime,
-        endTime,
+        startTime, // Send as time string
+        endTime, // Send as time string
         location: {
           coordinates: fullListing.pickup.location.coordinates,
         },
@@ -264,15 +260,17 @@ export default function RestaurantListingsScreen() {
         </View>
 
         {/* Add New Listing Button */}
-        <TouchableOpacity
-          onPress={() => router.push("/(restaurants)/create-listing")}
-          className="bg-[#16a34a] rounded-2xl p-4 flex-row items-center justify-center mb-6 shadow-sm"
-        >
-          <Ionicons name="add-circle" size={24} color="#ffffff" />
-          <Text className="text-white font-semibold text-base ml-2">
-            Create New Listing
-          </Text>
-        </TouchableOpacity>
+        {listings.length > 0 && (
+          <TouchableOpacity
+            onPress={() => router.push("/(restaurants)/create-listing")}
+            className="bg-[#16a34a] rounded-2xl p-4 flex-row items-center justify-center mb-6 shadow-sm"
+          >
+            <Ionicons name="add-circle" size={24} color="#ffffff" />
+            <Text className="text-white font-semibold text-base ml-2">
+              Create New Listing
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {isPending ? (
           <View className="flex-1 items-center justify-center py-12">
@@ -304,9 +302,11 @@ export default function RestaurantListingsScreen() {
         ) : (
           <ScrollView
             className="grow"
-            contentContainerStyle={{
-              // paddingBottom: tabBarHeight + 10,
-            }}
+            contentContainerStyle={
+              {
+                // paddingBottom: tabBarHeight + 10,
+              }
+            }
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
@@ -530,8 +530,9 @@ function ListingCard({
               <TouchableOpacity
                 onPress={onPause}
                 disabled={isUpdating}
-                className={`flex-1 bg-[#fef3c7] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
-                  }`}
+                className={`flex-1 bg-[#fef3c7] rounded-xl py-2.5 flex-row items-center justify-center ${
+                  isUpdating ? "opacity-50" : ""
+                }`}
               >
                 {isUpdating ? (
                   <ActivityIndicator size="small" color="#f59e0b" />
@@ -548,8 +549,9 @@ function ListingCard({
               <TouchableOpacity
                 onPress={onActivate}
                 disabled={isUpdating}
-                className={`flex-1 bg-[#dcfce7] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
-                  }`}
+                className={`flex-1 bg-[#dcfce7] rounded-xl py-2.5 flex-row items-center justify-center ${
+                  isUpdating ? "opacity-50" : ""
+                }`}
               >
                 {isUpdating ? (
                   <ActivityIndicator size="small" color="#16a34a" />
@@ -566,8 +568,9 @@ function ListingCard({
           <TouchableOpacity
             onPress={onEdit}
             disabled={isUpdating}
-            className={`flex-1 bg-[#eff2f0] rounded-xl py-2.5 flex-row items-center justify-center ${isUpdating ? "opacity-50" : ""
-              }`}
+            className={`flex-1 bg-[#eff2f0] rounded-xl py-2.5 flex-row items-center justify-center ${
+              isUpdating ? "opacity-50" : ""
+            }`}
           >
             <Ionicons name="create-outline" size={16} color="#657c69" />
             <Text className="text-[#657c69] font-semibold text-sm ml-1">

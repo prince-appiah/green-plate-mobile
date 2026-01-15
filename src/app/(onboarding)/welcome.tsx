@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
 
 export default function WelcomeScreen() {
   const handleGetStarted = () => {
@@ -10,7 +11,7 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#eff2f0]">
+    <CustomSafeAreaView className="flex-1 bg-[#eff2f0]">
       <StatusBar barStyle="dark-content" />
       <View className="flex-1 justify-center items-center px-4">
         <View className="items-center mb-12">
@@ -40,7 +41,7 @@ export default function WelcomeScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </CustomSafeAreaView>
   );
 }
 

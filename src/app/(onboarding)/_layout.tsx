@@ -1,11 +1,16 @@
-import { useEffect } from "react";
 import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
 import { useGetOnboardingStatus } from "@/features/onboarding";
+import { useAuthStore } from "@/stores/auth-store";
 import { router, Stack, useSegments } from "expo-router";
-import { Text, View, ActivityIndicator } from "react-native";
+import { useEffect } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
 
 export default function OnboardingLayout() {
-  const { data, isPending } = useGetOnboardingStatus();
+  const user = useAuthStore((state) => state.user);
+  const { data, isPending, error } = useGetOnboardingStatus();
+  // console.log("data for onb: ", JSON.stringify(data, null, 2))
+  // console.log("errro for onb: ", JSON.stringify(error?.message, null, 2))
+
   const segments = useSegments();
 
   useEffect(() => {
@@ -15,6 +20,21 @@ export default function OnboardingLayout() {
 
     const status = data.data;
     const currentRoute = segments[segments.length - 1];
+
+    // console.log("OnboardingLayout Effect:", {
+    //   status,
+    //   currentRoute,
+    //   roleSelected: status.roleSelected,
+    //   role: status.role,
+    //   profileCompleted: status.profileCompleted
+    // });
+
+    // If user role doesn't match onboarding status role, wait for refetch
+    // This prevents redirects based on stale cached data
+    if (user && status.role && user.role !== status.role) {
+      console.log("Role mismatch detected, waiting for fresh data");
+      return;
+    }
 
     // If onboarding is complete, redirect to appropriate dashboard
     if (status.onboardingCompleted) {
@@ -27,15 +47,19 @@ export default function OnboardingLayout() {
     }
 
     // Don't redirect if already on the correct screen
-    if (currentRoute === "welcome" || currentRoute === "role-selection") {
+    if (
+      currentRoute === "welcome" ||
+      currentRoute === "role-selection" ||
+      currentRoute === "location"
+    ) {
       return;
     }
 
     // Redirect based on onboarding stage
     if (!status.roleSelected || !status.role) {
-      if (currentRoute !== "role-selection") {
-        router.replace("/(onboarding)/role-selection");
-      }
+      // if (currentRoute !== "role-selection") {
+      router.replace("/(onboarding)/role-selection");
+      // }
       return;
     }
 
@@ -55,7 +79,7 @@ export default function OnboardingLayout() {
     if (status.role === "consumer" && currentRoute !== "preferences") {
       router.replace("/(onboarding)/preferences");
     }
-  }, [data, isPending, segments]);
+  }, [data, isPending, segments, user]);
 
   if (isPending) {
     return (
@@ -75,24 +99,24 @@ export default function OnboardingLayout() {
     );
   }
 
-  if (!data) {
-    return (
-      <CustomSafeAreaView useSafeArea>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#eff2f0",
-          }}
-        >
-          <Text className="text-[#1a2e1f]">
-            Error loading onboarding status
-          </Text>
-        </View>
-      </CustomSafeAreaView>
-    );
-  }
+  // if (!data) {
+  //   return (
+  //     <CustomSafeAreaView useSafeArea>
+  //       <View
+  //         style={{
+  //           flex: 1,
+  //           justifyContent: "center",
+  //           alignItems: "center",
+  //           backgroundColor: "#eff2f0",
+  //         }}
+  //       >
+  //         <Text className="text-[#1a2e1f]">
+  //           Error loading onboarding status
+  //         </Text>
+  //       </View>
+  //     </CustomSafeAreaView>
+  //   );
+  // }
 
   return (
     <Stack

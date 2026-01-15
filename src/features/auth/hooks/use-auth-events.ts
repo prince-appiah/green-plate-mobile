@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { authEventEmitter } from '@/lib/auth-event-emitter';
-import { router } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 
 type AuthEventOptions = {
   onLogout?: () => void;
@@ -31,11 +31,20 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
     redirectTo = '/(auth)/login',
   } = options;
 
+  const segments = useSegments();
+
   useEffect(() => {
+    const isAuthRoute = () => {
+      const currentRoute = segments[segments.length - 1];
+      // Check if we are on login, welcome, or any other public auth screen
+      // Add other auth route names if necessary
+      return currentRoute === 'login' || currentRoute === 'welcome' || segments[0] === '(auth)';
+    };
+
     const handleLogout = () => {
       if (onLogout) {
         onLogout();
-      } else if (autoRedirect) {
+      } else if (autoRedirect && !isAuthRoute()) {
         router.replace(redirectTo);
       }
     };
@@ -43,7 +52,7 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
     const handleTokenRefreshFailed = () => {
       if (onTokenRefreshFailed) {
         onTokenRefreshFailed();
-      } else if (autoRedirect) {
+      } else if (autoRedirect && !isAuthRoute()) {
         router.replace(redirectTo);
       }
     };
@@ -51,7 +60,7 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
     const handleUnauthorized = () => {
       if (onUnauthorized) {
         onUnauthorized();
-      } else if (autoRedirect) {
+      } else if (autoRedirect && !isAuthRoute()) {
         router.replace(redirectTo);
       }
     };
@@ -79,6 +88,7 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
     onUnauthorized,
     autoRedirect,
     redirectTo,
+    segments,
   ]);
 }
 

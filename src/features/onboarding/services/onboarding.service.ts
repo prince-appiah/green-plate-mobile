@@ -1,14 +1,15 @@
 import { IUserRole } from "@/features/shared";
 import axiosInstanceapi, { BaseApiResponse } from "@/lib/axios";
-import { AUTH_STORAGE_TOKEN_KEY } from "@/lib/token-storage";
 import { handleAsync } from "@/lib/try-catch";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {
-  CustomerOnboardingPayload,
-  CustomerOnboardingResponse,
   OnboardingStatusResponse,
   RestaurantOnboardingPayload,
   RestaurantOnboardingResponse,
+  SubmitCustomerBasicInfoPayload,
+  SubmitCustomerBasicInfoResponse,
+  SubmitCustomerPreferencesPayload,
+  SubmitCustomerPreferencesResponse,
 } from "./onboarding-types";
 
 class OnboardingService {
@@ -35,14 +36,13 @@ class OnboardingService {
   }
 
   async selectOnboardingRole(role: IUserRole) {
-    // const token = await AsyncStorage.getItem(AUTH_STORAGE_TOKEN_KEY);
     const fn = await axiosInstanceapi.post(
       `${this.endpoints.base}/role`,
       { role },
-      { requiresAuth: true },
+      { requiresAuth: true }
     );
     const response = await handleAsync<BaseApiResponse<{ role: IUserRole }>>(
-      fn.data,
+      fn.data
     );
     return response;
   }
@@ -51,7 +51,7 @@ class OnboardingService {
     const fn = await axiosInstanceapi.post(
       `${this.endpoints.base}/restaurant`,
       payload,
-      { requiresAuth: true },
+      { requiresAuth: true }
     );
     const response = await handleAsync<
       BaseApiResponse<RestaurantOnboardingResponse>
@@ -59,14 +59,26 @@ class OnboardingService {
     return response;
   }
 
-  async completeCustomerOnboarding(payload: CustomerOnboardingPayload) {
+  async submitCustomerBasicInfo(payload: SubmitCustomerBasicInfoPayload) {
     const fn = await axiosInstanceapi.post(
-      `${this.endpoints.base}/customer`,
+      `${this.endpoints.base}/customer/basic-info`,
       payload,
-      { requiresAuth: true },
+      { requiresAuth: true }
     );
     const response = await handleAsync<
-      BaseApiResponse<CustomerOnboardingResponse>
+      BaseApiResponse<SubmitCustomerBasicInfoResponse>
+    >(fn.data);
+    return response;
+  }
+
+  async submitCustomerPreferences(payload: SubmitCustomerPreferencesPayload) {
+    const fn = await axiosInstanceapi.post(
+      `${this.endpoints.base}/customer/preferences`,
+      payload,
+      { requiresAuth: true }
+    );
+    const response = await handleAsync<
+      BaseApiResponse<SubmitCustomerPreferencesResponse>
     >(fn.data);
     return response;
   }

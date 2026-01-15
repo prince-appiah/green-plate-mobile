@@ -4,7 +4,10 @@ import { TimePicker } from "@/components/screens/restaurants/TimePicker/time-pic
 import { Input } from "@/components/ui/Input/input";
 import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
 import { useCreateListing } from "@/features/listings";
-import { CreateListingFormData, createListingSchema } from "@/features/listings/create-listing-schema";
+import {
+  CreateListingFormData,
+  createListingSchema,
+} from "@/features/listings/create-listing-schema";
 import { ListingCategories, useImagePicker } from "@/features/shared";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -88,6 +91,19 @@ export default function CreateListingScreen() {
   };
 
   const onSubmit = async (data: CreateListingFormData) => {
+    // Format time strings from "HH:mm" to "HH:mm:ss" format
+    // The form stores times as "HH:mm", we'll add ":00" for seconds
+    const formatTimeString = (timeString: string): string => {
+      // If already in HH:mm:ss format, return as is
+      if (timeString.split(":").length === 2) {
+        return timeString;
+      }
+      // Otherwise, add ":00" for seconds
+      return `${timeString}`;
+    };
+
+    console.log("data.pickupStart", data.pickupStart);
+    console.log("data.pickupEnd", data.pickupEnd);
     // Validate location is selected
     if (!locationData) {
       Alert.alert("Error", "Please select a pickup location");
@@ -102,26 +118,8 @@ export default function CreateListingScreen() {
       return;
     }
 
-    // Parse pickup times from "HH:mm" format to Date objects
-    // Using today's date as the base date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const parseTimeString = (timeString: string): Date => {
-      const [hours, minutes] = timeString.split(":").map(Number);
-      const date = new Date(today);
-      date.setHours(hours, minutes, 0, 0);
-      return date;
-    };
-
-    const pickupStartDate = parseTimeString(data.pickupStart);
-    let pickupEndDate = parseTimeString(data.pickupEnd);
-
-    // If end time is before start time, assume it's the next day
-    if (pickupEndDate <= pickupStartDate) {
-      pickupEndDate = new Date(pickupEndDate);
-      pickupEndDate.setDate(pickupEndDate.getDate() + 1);
-    }
+    const pickupStartTime = formatTimeString(data.pickupStart);
+    const pickupEndTime = formatTimeString(data.pickupEnd);
 
     // Prepare photo URLs array
     const photoUrls = data.photo ? [data.photo] : [];
@@ -138,8 +136,8 @@ export default function CreateListingScreen() {
       quantityTotal: Number(data.quantity),
       maxPerUser: Number(data.maxPerUser),
       pickup: {
-        startTime: pickupStartDate,
-        endTime: pickupEndDate,
+        startTime: pickupStartTime, // Send as time string "HH:mm:ss"
+        endTime: pickupEndTime, // Send as time string "HH:mm:ss"
         location: {
           coordinates: locationData.coordinates,
         },
@@ -159,7 +157,10 @@ export default function CreateListingScreen() {
           },
         ]);
       } else {
-        Alert.alert("Error", response.message || "Failed to create listing. Please try again.");
+        Alert.alert(
+          "Error",
+          response.message || "Failed to create listing. Please try again."
+        );
       }
     } catch (error) {
       console.error("Error creating listing:", error);
@@ -169,13 +170,21 @@ export default function CreateListingScreen() {
 
   return (
     <CustomSafeAreaView useSafeArea>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+      >
         {/* Header */}
         <View className="flex-row items-center justify-between mb-6">
-          <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-10 h-10 items-center justify-center"
+          >
             <Ionicons name="arrow-back" size={24} color="#1a2e1f" />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-[#1a2e1f]">Create Listing</Text>
+          <Text className="text-xl font-bold text-[#1a2e1f]">
+            Create Listing
+          </Text>
           <View className="w-10" />
         </View>
 
@@ -186,7 +195,9 @@ export default function CreateListingScreen() {
         >
           {/* Photo Section */}
           <View className="mb-6">
-            <Text className="text-sm text-[#1a2e1f] font-medium mb-2">Photo</Text>
+            <Text className="text-sm text-[#1a2e1f] font-medium mb-2">
+              Photo
+            </Text>
             <TouchableOpacity
               onPress={handlePhotoPress}
               className="bg-[#f9fafb] border-2 border-dashed border-[#e5e7eb] rounded-lg h-48 items-center justify-center relative"
@@ -194,11 +205,17 @@ export default function CreateListingScreen() {
               {isPickingImage ? (
                 <ActivityIndicator size="large" color="#16a34a" />
               ) : getImageUri() ? (
-                <Image source={{ uri: getImageUri()! }} className="w-full h-full rounded-lg" resizeMode="cover" />
+                <Image
+                  source={{ uri: getImageUri()! }}
+                  className="w-full h-full rounded-lg"
+                  resizeMode="cover"
+                />
               ) : (
                 <>
                   <Ionicons name="camera-outline" size={48} color="#9ca3af" />
-                  <Text className="text-sm text-[#9ca3af] mt-2">Tap to add photo</Text>
+                  <Text className="text-sm text-[#9ca3af] mt-2">
+                    Tap to add photo
+                  </Text>
                 </>
               )}
             </TouchableOpacity>
@@ -240,7 +257,11 @@ export default function CreateListingScreen() {
                     errors.description ? "border-red-500" : "border-[#e5e7eb]"
                   }`}
                 />
-                {errors.description && <Text className="mt-1 text-sm text-red-500">{errors.description.message}</Text>}
+                {errors.description && (
+                  <Text className="mt-1 text-sm text-red-500">
+                    {errors.description.message}
+                  </Text>
+                )}
               </View>
             )}
           />
@@ -309,7 +330,9 @@ export default function CreateListingScreen() {
                     </Text>
                     <View
                       className={`flex-row items-center bg-[#f9fafb] rounded-lg border px-4 py-3 ${
-                        errors.originalPrice ? "border-red-500" : "border-[#e5e7eb]"
+                        errors.originalPrice
+                          ? "border-red-500"
+                          : "border-[#e5e7eb]"
                       }`}
                     >
                       <Text className="text-base text-[#1a2e1f] mr-2">GHS</Text>
@@ -324,7 +347,9 @@ export default function CreateListingScreen() {
                       />
                     </View>
                     {errors.originalPrice && (
-                      <Text className="mt-1 text-sm text-red-500">{errors.originalPrice.message}</Text>
+                      <Text className="mt-1 text-sm text-red-500">
+                        {errors.originalPrice.message}
+                      </Text>
                     )}
                   </View>
                 )}
@@ -355,7 +380,11 @@ export default function CreateListingScreen() {
                         className="flex-1 text-base text-[#1a2e1f]"
                       />
                     </View>
-                    {errors.salePrice && <Text className="mt-1 text-sm text-red-500">{errors.salePrice.message}</Text>}
+                    {errors.salePrice && (
+                      <Text className="mt-1 text-sm text-red-500">
+                        {errors.salePrice.message}
+                      </Text>
+                    )}
                   </View>
                 )}
               />
@@ -411,7 +440,11 @@ export default function CreateListingScreen() {
             <Text className="text-sm text-[#1a2e1f] font-medium mb-2">
               Pickup Location <Text className="text-red-500">*</Text>
             </Text>
-            {!locationData && <Text className="text-xs text-red-500 mb-2">Please select a pickup location</Text>}
+            {!locationData && (
+              <Text className="text-xs text-red-500 mb-2">
+                Please select a pickup location
+              </Text>
+            )}
             <MapPicker
               onLocationSelect={handleLocationSelect}
               inline
@@ -446,11 +479,15 @@ export default function CreateListingScreen() {
                   numberOfLines={3}
                   textAlignVertical="top"
                   className={`bg-[#f9fafb] rounded-lg border px-4 py-3 text-base text-[#1a2e1f] min-h-[80px] ${
-                    errors.pickupInstructions ? "border-red-500" : "border-[#e5e7eb]"
+                    errors.pickupInstructions
+                      ? "border-red-500"
+                      : "border-[#e5e7eb]"
                   }`}
                 />
                 {errors.pickupInstructions && (
-                  <Text className="mt-1 text-sm text-red-500">{errors.pickupInstructions.message}</Text>
+                  <Text className="mt-1 text-sm text-red-500">
+                    {errors.pickupInstructions.message}
+                  </Text>
                 )}
               </View>
             )}
@@ -459,15 +496,21 @@ export default function CreateListingScreen() {
           {/* Submit Button */}
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            disabled={!isValid || createListingMutation.isPending || !locationData}
+            disabled={
+              !isValid || createListingMutation.isPending || !locationData
+            }
             className={`rounded-2xl p-4 items-center justify-center ${
-              isValid && !createListingMutation.isPending && locationData ? "bg-[#16a34a]" : "bg-[#9ca3af]"
+              isValid && !createListingMutation.isPending && locationData
+                ? "bg-[#16a34a]"
+                : "bg-[#9ca3af]"
             }`}
           >
             {createListingMutation.isPending ? (
               <ActivityIndicator size="small" color="#ffffff" />
             ) : (
-              <Text className="text-white font-semibold text-base">Create Listing</Text>
+              <Text className="text-white font-semibold text-base">
+                Create Listing
+              </Text>
             )}
           </TouchableOpacity>
         </ScrollView>

@@ -12,8 +12,8 @@ export interface CreateListingPayload {
   quantityTotal: number;
   maxPerUser: number;
   pickup: {
-    startTime: Date;
-    endTime: Date;
+    startTime: string; // Time string in "HH:mm:ss" format
+    endTime: string;    // Time string in "HH:mm:ss" format
     location: {
       coordinates: [number, number];
     };

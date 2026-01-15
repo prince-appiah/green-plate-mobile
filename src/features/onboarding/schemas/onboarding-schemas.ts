@@ -39,7 +39,7 @@ export const DIETARY_OPTIONS = [
   "None",
 ] as const;
 
-// Cuisine options
+//Cuisin options
 export const CUISINE_OPTIONS = [
   "Italian",
   "Mexican",
@@ -56,9 +56,9 @@ export const CUISINE_OPTIONS = [
 // Budget range options
 export const BUDGET_RANGE_OPTIONS = ["low", "medium", "high"] as const;
 
-// Preferences Schema
+// Preferences Schema (must match SubmitCustomerPreferencesPayload)
 export const preferencesSchema = z.object({
-  dietaryPreferences: z
+  dietary: z
     .array(z.string())
     .min(1, "Please select at least one dietary preference or 'None'")
     .refine(
@@ -75,17 +75,10 @@ export const preferencesSchema = z.object({
           "If 'None' is selected, it must be the only option. Otherwise, select at least one preference.",
       }
     ),
-  favoriteCuisines: z.array(z.string()).optional(),
-  budgetRange: z.enum(BUDGET_RANGE_OPTIONS, {
-    required_error: "Budget range is required",
-    invalid_type_error: "Please select a valid budget range",
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
   }),
-  radiusKm: z
-    .number()
-    .min(1, "Radius must be at least 1 km")
-    .max(100, "Radius cannot exceed 100 km")
-    .default(10),
 });
 
 export type PreferencesFormData = z.infer<typeof preferencesSchema>;
-

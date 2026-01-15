@@ -1,7 +1,7 @@
 import Axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { tokenStorage } from "./token-storage";
-import { refreshAccessToken } from "./refresh-token";
 import { authEventEmitter } from "./auth-event-emitter";
+import { refreshAccessToken } from "./refresh-token-client";
+import { tokenStorage } from "./token-storage";
 
 export type BaseApiResponse<T = unknown> = {
   success: boolean;

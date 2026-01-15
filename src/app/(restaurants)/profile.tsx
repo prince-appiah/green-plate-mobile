@@ -83,9 +83,9 @@ export default function RestaurantProfileScreen() {
               <Text className="text-xl font-bold text-[#1a2e1f] mb-1">
                 {profile?.name || "Restaurant Name"}
               </Text>
-              <Text className="text-sm text-[#657c69] mb-2">
+              {/* <Text className="text-sm text-[#657c69] mb-2">
                 {profile?.email || "restaurant@example.com"}
-              </Text>
+              </Text> */}
               {/* <View className="flex-row items-center">
                 <Ionicons name="star" size={14} color="#f59e0b" />
                 <Text className="text-sm font-semibold text-[#1a2e1f] ml-1">

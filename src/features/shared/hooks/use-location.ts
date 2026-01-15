@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
 import * as Location from "expo-location";
-import { Alert, Platform } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert } from "react-native";
 
 interface LocationData {
   latitude: number;
@@ -83,6 +83,7 @@ export function useLocation(options: UseLocationOptions = {}) {
       // Using maximumAge: 0 to ensure we get fresh location data from the device
       const locationResult = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
+        mayShowUserSettingsDialog: true,
         maximumAge: 0, // Always get fresh location, don't use cached
       });
 
@@ -104,26 +105,23 @@ export function useLocation(options: UseLocationOptions = {}) {
       setIsLoading(false);
       return locationData;
     } catch (err: any) {
-      const errorMessage =
-        err?.message || "Failed to get current location";
+      const errorMessage = err?.message || "Failed to get current location";
       console.error("Error getting location:", errorMessage);
       setError(errorMessage);
       setIsLoading(false);
-      
+
       // Show user-friendly error
       Alert.alert(
         "Location Error",
         "Unable to get your current location. Please make sure location services are enabled and try again.",
         [{ text: "OK" }]
       );
-      
+
       return null;
     }
   };
 
-  const watchPosition = (
-    callback: (location: LocationData) => void
-  ): (() => void) | null => {
+  const watchPosition = (callback: (location: LocationData) => void): (() => void) | null => {
     if (!hasPermission) {
       requestPermission().then((granted) => {
         if (!granted) return null;
@@ -132,10 +130,7 @@ export function useLocation(options: UseLocationOptions = {}) {
 
     const subscription = Location.watchPositionAsync(
       {
-        accuracy:
-          options.enableHighAccuracy !== false
-            ? Location.Accuracy.Balanced
-            : Location.Accuracy.Low,
+        accuracy: options.enableHighAccuracy !== false ? Location.Accuracy.Balanced : Location.Accuracy.Low,
         ...options,
       },
       (location) => {

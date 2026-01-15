@@ -1,20 +1,17 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StatusBar } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useOnboarding } from "../../contexts/OnboardingContext";
+import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
 import {
   useGetOnboardingStatus,
   useSelectOnboardingRole,
 } from "@/features/onboarding";
 import { IUserRole } from "@/features/shared";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { StatusBar, Text, TouchableOpacity, View } from "react-native";
 
 export default function RoleSelectionScreen() {
-  const { updateOnboardingData } = useOnboarding();
   const [selectedRole, setSelectedRole] = useState<IUserRole | null>(null);
   const { mutate, isPending } = useSelectOnboardingRole();
-  const { data } = useGetOnboardingStatus();
 
   const handleRoleSelect = (role: IUserRole) => {
     setSelectedRole(role);
@@ -24,11 +21,6 @@ export default function RoleSelectionScreen() {
     if (selectedRole) {
       mutate(selectedRole, {
         onSuccess: () => {
-          // Update local context
-          updateOnboardingData({
-            role: selectedRole,
-          });
-
           // Navigate based on selected role
           if (selectedRole === "restaurantOwner") {
             router.push("/(onboarding)/restaurant-info");
@@ -45,9 +37,9 @@ export default function RoleSelectionScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#eff2f0]">
+    <CustomSafeAreaView useSafeArea>
       <StatusBar barStyle="dark-content" />
-      <View className="flex-1 justify-center items-center px-6">
+      <View className="grow justify-center items-center px-6">
         <View className="items-center mb-12 w-full">
           <Ionicons
             name="people"
@@ -172,6 +164,6 @@ export default function RoleSelectionScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </CustomSafeAreaView>
   );
 }

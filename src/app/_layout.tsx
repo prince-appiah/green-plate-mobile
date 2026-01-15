@@ -1,19 +1,20 @@
 import "../global.css";
 
-import { Slot } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AuthProvider } from "../contexts/AuthContext";
-import { OnboardingProvider } from "../contexts/OnboardingContext";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/lib/query-client";
-import Constants from "expo-constants";
-import { useSyncQueriesExternal } from "react-query-external-sync";
-import { Platform } from "react-native";
-import { enableScreens } from "react-native-screens";
-import * as Device from "expo-device";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthEventListener } from "@/components/AuthEventListener";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { queryClient } from "@/lib/query-client";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { QueryClientProvider } from "@tanstack/react-query";
+import Constants from "expo-constants";
+import * as Device from "expo-device";
+import { Slot } from "expo-router";
+import { Platform } from "react-native";
+import AsyncStorageDevTools from "react-native-async-storage-devtools";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { enableScreens } from "react-native-screens";
+import { useSyncQueriesExternal } from "react-query-external-sync";
+import { AuthProvider } from "../contexts/AuthContext";
+import { OnboardingProvider } from "../contexts/OnboardingContext";
 
 // Get the host IP address dynamically
 const hostIP = Constants.expoGoConfig?.debuggerHost?.split(`:`)[0] || Constants.expoConfig?.hostUri?.split(`:`)[0];
@@ -38,6 +39,7 @@ export default function Layout() {
             <AuthEventListener />
             <ErrorBoundary>
               <Slot />
+              <AsyncStorageDevTools />
             </ErrorBoundary>
           </SafeAreaProvider>
         </OnboardingProvider>

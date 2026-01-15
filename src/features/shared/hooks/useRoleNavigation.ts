@@ -1,7 +1,6 @@
-import { useRouter } from 'expo-router';
-import { useRole } from './useRole';
-import { getRoleRoute } from '../utils/role-utils';
-import { UserRole } from '../types/user.types';
+import { useRouter } from "expo-router";
+import { IUserRole } from "../types/user.types";
+import { useRole } from "./useRole";
 
 /**
  * Hook for role-aware navigation
@@ -14,7 +13,7 @@ export function useRoleNavigation() {
     router.replace(roleRoute);
   };
 
-  const navigateIfAllowed = (route: string, allowedRoles: UserRole[]) => {
+  const navigateIfAllowed = (route: string, allowedRoles: IUserRole[]) => {
     if (role && allowedRoles.includes(role)) {
       router.push(route);
     } else {
@@ -28,4 +27,3 @@ export function useRoleNavigation() {
     roleRoute,
   };
 }
-

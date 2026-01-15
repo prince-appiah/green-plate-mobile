@@ -1,6 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StatusBar, Platform, TouchableOpacity, Switch } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  View,
+  Text,
+  ScrollView,
+  StatusBar,
+  Platform,
+  TouchableOpacity,
+  Switch,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/stores/auth-store";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -17,7 +28,6 @@ export default function SettingsScreen() {
   const [currentView, setCurrentView] = useState<SettingsView>("main");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-  const signOut = useAuthStore((state) => state.signOut);
   const { handleLogout } = useGoogleSignin();
 
   if (currentView === "payment") {
@@ -120,7 +130,9 @@ export default function SettingsScreen() {
         >
           {settingsGroups.map((group) => (
             <View key={group.title} className="mb-6">
-              <Text className="font-bold text-lg text-[#1a2e1f] mb-3">{group.title}</Text>
+              <Text className="font-bold text-lg text-[#1a2e1f] mb-3">
+                {group.title}
+              </Text>
               <View className="bg-white rounded-2xl border border-[#e5e7eb] shadow-sm overflow-hidden">
                 {group.items.map((item, index) => (
                   <TouchableOpacity
@@ -128,15 +140,23 @@ export default function SettingsScreen() {
                     onPress={item.onClick}
                     disabled={item.disabled}
                     className={`flex-row items-center gap-4 p-4 ${
-                      index < group.items.length - 1 ? "border-b border-[#e5e7eb]" : ""
+                      index < group.items.length - 1
+                        ? "border-b border-[#e5e7eb]"
+                        : ""
                     } ${item.disabled ? "opacity-50" : ""}`}
                   >
                     <View className="w-10 h-10 items-center justify-center rounded-xl bg-[#16a34a]/10">
                       <Ionicons name={item.icon} size={20} color="#16a34a" />
                     </View>
                     <View className="flex-1">
-                      <Text className="font-medium text-sm text-[#1a2e1f]">{item.label}</Text>
-                      {item.description && <Text className="text-xs text-[#657c69] mt-0.5">{item.description}</Text>}
+                      <Text className="font-medium text-sm text-[#1a2e1f]">
+                        {item.label}
+                      </Text>
+                      {item.description && (
+                        <Text className="text-xs text-[#657c69] mt-0.5">
+                          {item.description}
+                        </Text>
+                      )}
                     </View>
                     {item.hasSwitch ? (
                       <Switch
@@ -147,9 +167,15 @@ export default function SettingsScreen() {
                         thumbColor="#ffffff"
                       />
                     ) : item.value ? (
-                      <Text className="text-sm text-[#657c69]">{item.value}</Text>
+                      <Text className="text-sm text-[#657c69]">
+                        {item.value}
+                      </Text>
                     ) : (
-                      <Ionicons name="chevron-forward" size={20} color="#657c69" />
+                      <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color="#657c69"
+                      />
                     )}
                   </TouchableOpacity>
                 ))}
@@ -166,14 +192,20 @@ export default function SettingsScreen() {
               <View className="w-10 h-10 items-center justify-center rounded-xl bg-red-100">
                 <Ionicons name="log-out-outline" size={20} color="#ef4444" />
               </View>
-              <Text className="font-medium text-sm text-red-600 flex-1">Log Out</Text>
+              <Text className="font-medium text-sm text-red-600 flex-1">
+                Log Out
+              </Text>
             </TouchableOpacity>
           </View>
 
           {/* App Info */}
           <View className="items-center pb-4">
-            <Text className="text-xs text-[#657c69]">GreenPlate v1.0.0 (MVP)</Text>
-            <Text className="text-xs text-[#657c69] mt-1">Made with 💚 for the planet</Text>
+            <Text className="text-xs text-[#657c69]">
+              GreenPlate v1.0.0 (MVP)
+            </Text>
+            <Text className="text-xs text-[#657c69] mt-1">
+              Made with 💚 for the planet
+            </Text>
           </View>
         </ScrollView>
       </View>
