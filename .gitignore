@@ -42,3 +42,8 @@ yarn-error.*
 app-example
 .rules
 green-plate-app-482302-d6d92172f0f9.json
+credentials.json
+credentials/
+
+build-**.apk
+build-**.ipa

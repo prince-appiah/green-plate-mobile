@@ -46,7 +46,7 @@ export function useLocation(options: UseLocationOptions = {}) {
         Alert.alert(
           "Location Permission Required",
           "Please enable location permissions in your device settings to use this feature.",
-          [{ text: "OK" }]
+          [{ text: "OK" }],
         );
       }
 
@@ -72,7 +72,7 @@ export function useLocation(options: UseLocationOptions = {}) {
         Alert.alert(
           "Location Permission Required",
           "Please enable location permissions in your device settings to use this feature.",
-          [{ text: "OK" }]
+          [{ text: "OK" }],
         );
         return null;
       }
@@ -84,7 +84,7 @@ export function useLocation(options: UseLocationOptions = {}) {
       const locationResult = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
         mayShowUserSettingsDialog: true,
-        maximumAge: 0, // Always get fresh location, don't use cached
+        // maximumAge: 0, // Always get fresh location, don't use cached
       });
 
       const locationData: LocationData = {
@@ -114,7 +114,7 @@ export function useLocation(options: UseLocationOptions = {}) {
       Alert.alert(
         "Location Error",
         "Unable to get your current location. Please make sure location services are enabled and try again.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
 
       return null;
@@ -141,7 +141,7 @@ export function useLocation(options: UseLocationOptions = {}) {
         };
         setLocation(locationData);
         callback(locationData);
-      }
+      },
     );
 
     return () => {

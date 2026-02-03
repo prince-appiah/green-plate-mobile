@@ -1,48 +1,41 @@
-import React from "react";
-import { TextInput, View, Text, TextInputProps } from "react-native";
-import {
-  useController,
-  FieldValues,
-  UseControllerProps,
-  Path,
-} from "react-hook-form";
+import { cn } from "@/lib/utils";
+import React, { ReactNode } from "react";
+import { FieldValues, Path, useController, UseControllerProps } from "react-hook-form";
+import { Text, TextInput, TextInputProps, View } from "react-native";
 import { tv, type VariantProps } from "tailwind-variants";
+import { Typography } from "../text";
 
 /**
  * Input variants defined using Uniwind's cva (Class Variance Authority)
  */
 const inputVariants = tv({
-  base: "border rounded-xl px-4 py-3 text-base focus:border-green-500",
+  base: "bg-[#f9fafb] rounded-lg border border-[#e5e7eb] px-4 py-3 text-base text-[#1a2e1f] rounded-xl px-4 py-3 text-base  ",
   variants: {
     hasError: {
       true: "border-red-500",
       false: "border-gray-300",
     },
-    disabled: {
-      true: "bg-gray-100 text-gray-400",
-      false: "bg-white text-gray-900",
-    },
+    disabled: "bg-gray-100 text-gray-400",
   },
 });
 
 interface InputProps<TFieldValues extends FieldValues>
-  extends Omit<
-      TextInputProps,
-      | "defaultValue"
-      | "value"
-      | "onChange"
-      | "onChangeText"
-      | "onBlur"
-      | "disabled"
-    >,
+  extends
+    Omit<TextInputProps, "defaultValue" | "value" | "onChange" | "onChangeText" | "onBlur" | "disabled">,
     Omit<VariantProps<typeof inputVariants>, "disabled">,
     Omit<UseControllerProps<TFieldValues>, "disabled"> {
-  label?: React.ReactNode;
+  label?: ReactNode;
   placeholder?: string;
   name: Path<TFieldValues>; // Ensure name is always required for react-hook-form
   className?: string;
   labelClassName?: string;
   disabled?: boolean;
+  required?: boolean;
+  addons?: {
+    left?: ReactNode;
+    right?: ReactNode;
+  };
+  wrapperClassName?: string;
 }
 
 const Input = <TFieldValues extends FieldValues>({
@@ -53,9 +46,13 @@ const Input = <TFieldValues extends FieldValues>({
   rules,
   defaultValue,
   hasError,
-  disabled,
+  disabled = false,
   className,
   labelClassName,
+  required = false,
+  multiline = false,
+  wrapperClassName,
+  addons,
   ...props
 }: InputProps<TFieldValues>) => {
   const {
@@ -71,25 +68,25 @@ const Input = <TFieldValues extends FieldValues>({
   const showError = hasError || !!error;
 
   return (
-    <View className="mb-4">
+    <View className={cn("mb-4  w-full flex-1", wrapperClassName)}>
       {label && (
-        <Text className={`text-sm  font-medium mb-2 ${labelClassName || ""}`}>
+        <Typography className={cn("text-sm text-[#1a2e1f] font-medium mb-2", labelClassName)}>
           {label}
-        </Text>
+          {required && <Typography className="text-red-500"> *</Typography>}
+        </Typography>
       )}
       <TextInput
-        className={inputVariants({ hasError: showError, disabled, className })}
+        className={inputVariants({ hasError: showError, className })}
         placeholder={placeholder}
+        editable={!disabled}
+        multiline={multiline}
+        placeholderTextColor="#9CA3AF"
         onChangeText={field.onChange}
         onBlur={field.onBlur}
         value={field.value}
-        editable={!disabled}
-        placeholderTextColor="#9CA3AF" // Default gray-400 for placeholders
         {...props}
       />
-      {showError && error?.message && (
-        <Text className="mt-1 text-sm text-red-500">{error.message}</Text>
-      )}
+      {showError && error?.message && <Text className="mt-1 text-sm text-red-500">{error.message}</Text>}
     </View>
   );
 };

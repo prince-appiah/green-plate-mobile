@@ -2,28 +2,14 @@ import { geocodingService } from "@/features/shared";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import MapView, {
-  Marker,
-  PROVIDER_DEFAULT,
-  PROVIDER_GOOGLE,
-  Region,
-} from "react-native-maps";
+import { ActivityIndicator, Alert, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import CustomSafeAreaView from "./ui/SafeAreaView/safe-area-view";
 
 export interface AddressData {
-  street: string;
-  city: string;
-  country: string;
+  street?: string;
+  city?: string;
+  country?: string;
   coordinates: [number, number]; // [longitude, latitude]
   postalCode?: number;
   state?: string;
@@ -39,12 +25,7 @@ interface MapPickerProps {
   height?: number; // Height for inline map (default: 300)
 }
 
-export default function MapPicker({
-  onLocationSelect,
-  initialLocation,
-  inline = false,
-  height = 400,
-}: MapPickerProps) {
+export default function MapPicker({ onLocationSelect, initialLocation, inline = false, height = 400 }: MapPickerProps) {
   const [isMapReady, setIsMapReady] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{
@@ -82,10 +63,7 @@ export default function MapPicker({
       // Only load if it's a different location and we're not already loading
       if (!isSameLocation && !isLoadingRef.current) {
         setSelectedLocation(initialLocation);
-        loadAddressForLocation(
-          initialLocation.latitude,
-          initialLocation.longitude
-        );
+        loadAddressForLocation(initialLocation.latitude, initialLocation.longitude);
       } else if (isSameLocation) {
         // If it's the same location, just update selectedLocation without reloading
         setSelectedLocation(initialLocation);
@@ -95,13 +73,7 @@ export default function MapPicker({
 
   // For inline mode, automatically get location when component mounts
   useEffect(() => {
-    if (
-      inline &&
-      !initialLocation &&
-      !selectedLocation &&
-      !hasRequestedLocation &&
-      !isLoadingLocation
-    ) {
+    if (inline && !initialLocation && !selectedLocation && !hasRequestedLocation && !isLoadingLocation) {
       // Small delay to ensure map is ready
       const timer = setTimeout(() => {
         setHasRequestedLocation(true);
@@ -148,10 +120,7 @@ export default function MapPicker({
     };
   };
 
-  const loadAddressForLocation = async (
-    latitude: number,
-    longitude: number
-  ) => {
+  const loadAddressForLocation = async (latitude: number, longitude: number) => {
     // Prevent duplicate calls for the same location
     const lastLoaded = lastLoadedLocationRef.current;
     const isSameLocation =
@@ -173,10 +142,7 @@ export default function MapPicker({
     setIsLoadingAddress(true);
 
     try {
-      const address = await geocodingService.reverseGeocode(
-        latitude,
-        longitude
-      );
+      const address = await geocodingService.reverseGeocode(latitude, longitude);
 
       // Update the ref to track this location as loaded
       lastLoadedLocationRef.current = { latitude, longitude };
@@ -187,10 +153,8 @@ export default function MapPicker({
         // This prevents the retrigger loop
         const addressChanged =
           !addressData ||
-          Math.abs(addressData.coordinates[0] - address.coordinates[0]) >
-            0.0001 ||
-          Math.abs(addressData.coordinates[1] - address.coordinates[1]) >
-            0.0001;
+          Math.abs(addressData.coordinates[0] - address.coordinates[0]) > 0.0001 ||
+          Math.abs(addressData.coordinates[1] - address.coordinates[1]) > 0.0001;
 
         if (inline && addressChanged) {
           onLocationSelect(address);
@@ -202,7 +166,7 @@ export default function MapPicker({
           Alert.alert(
             "Address Not Available",
             "Unable to get address for this location. Please try selecting a different location.",
-            [{ text: "OK" }]
+            [{ text: "OK" }],
           );
         }
       }
@@ -210,11 +174,7 @@ export default function MapPicker({
       console.error("Error loading address:", error);
       setAddressData(null);
       if (!inline) {
-        Alert.alert(
-          "Error",
-          "Failed to load address for this location. Please try again.",
-          [{ text: "OK" }]
-        );
+        Alert.alert("Error", "Failed to load address for this location. Please try again.", [{ text: "OK" }]);
       }
     } finally {
       setIsLoadingAddress(false);
@@ -230,7 +190,7 @@ export default function MapPicker({
         Alert.alert(
           "Location Permission Required",
           "Please enable location permissions in your device settings to use this feature.",
-          [{ text: "OK" }]
+          [{ text: "OK" }],
         );
         setIsLoadingLocation(false);
         return;
@@ -264,7 +224,7 @@ export default function MapPicker({
       Alert.alert(
         "Location Error",
         "Unable to get your current location. Please make sure location services are enabled and try again.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
     } finally {
       setIsLoadingLocation(false);
@@ -286,7 +246,7 @@ export default function MapPicker({
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         },
-        500
+        500,
       );
     }
   };
@@ -306,34 +266,27 @@ export default function MapPicker({
       Alert.alert(
         "Location Required",
         "Please select a location on the map or use the location button to get your current location.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
     }
   };
 
   const displayText = addressData
-    ? `${addressData.street || "Unknown"}, ${addressData.city || "Unknown"}, ${
-        addressData.country || "Unknown"
-      }`
+    ? `${addressData.street || "Unknown"}, ${addressData.city || "Unknown"}, ${addressData.country || "Unknown"}`
     : selectedLocation
-    ? "Tap to select location"
-    : "Select location on map";
+      ? "Tap to select location"
+      : "Select location on map";
 
   // Render inline map view
   if (inline) {
     return (
       <View>
         {/* Map Container */}
-        <View
-          className="relative rounded-xl overflow-hidden border border-[#e5e7eb]"
-          style={{ height }}
-        >
+        <View className="relative rounded-xl overflow-hidden border border-[#e5e7eb]" style={{ height }}>
           <MapView
             key="inline-map"
             ref={mapRef}
-            provider={
-              Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
-            }
+            provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
             style={StyleSheet.absoluteFillObject}
             initialRegion={getDefaultRegion()}
             onPress={handleMapPress}
@@ -389,9 +342,7 @@ export default function MapPicker({
             <View className="absolute inset-0 bg-black/10 items-center justify-center z-10">
               <View className="bg-white rounded-2xl px-6 py-4 items-center shadow-lg">
                 <ActivityIndicator size="large" color="#16a34a" />
-                <Text className="text-sm text-[#1a2e1f] mt-3 font-medium">
-                  Getting your location...
-                </Text>
+                <Text className="text-sm text-[#1a2e1f] mt-3 font-medium">Getting your location...</Text>
               </View>
             </View>
           )}
@@ -424,34 +375,22 @@ export default function MapPicker({
           {isLoadingAddress ? (
             <View className="flex-row items-center py-2">
               <ActivityIndicator size="small" color="#16a34a" />
-              <Text className="text-sm text-[#657c69] ml-2">
-                Loading address...
-              </Text>
+              <Text className="text-sm text-[#657c69] ml-2">Loading address...</Text>
             </View>
           ) : addressData ? (
             <>
-              <Text className="text-sm font-semibold text-[#1a2e1f] mb-1">
-                Selected Address
-              </Text>
-              <Text className="text-sm text-[#657c69]">
-                {addressData.street || "Street not available"}
-              </Text>
+              <Text className="text-sm font-semibold text-[#1a2e1f] mb-1">Selected Address</Text>
+              <Text className="text-sm text-[#657c69]">{addressData.street || "Street not available"}</Text>
               <Text className="text-sm text-[#657c69]">
                 {addressData.city || "City not available"}
                 {addressData.state && `, ${addressData.state}`}
                 {addressData.postalCode && ` ${addressData.postalCode}`}
               </Text>
-              <Text className="text-sm text-[#657c69]">
-                {addressData.country || "Country not available"}
-              </Text>
-              <Text className="text-xs text-[#9ca3af] mt-2">
-                Tap on the map or drag the marker to change location
-              </Text>
+              <Text className="text-sm text-[#657c69]">{addressData.country || "Country not available"}</Text>
+              <Text className="text-xs text-[#9ca3af] mt-2">Tap on the map or drag the marker to change location</Text>
             </>
           ) : (
-            <Text className="text-sm text-[#657c69]">
-              Select a location on the map
-            </Text>
+            <Text className="text-sm text-[#657c69]">Select a location on the map</Text>
           )}
         </View>
       </View>
@@ -465,43 +404,23 @@ export default function MapPicker({
         onPress={() => setModalVisible(true)}
         className="bg-white rounded-xl border border-[#e5e7eb] px-4 h-14 flex-row items-center"
       >
-        <Ionicons
-          name="map-outline"
-          size={20}
-          color="#657c69"
-          style={{ marginRight: 12 }}
-        />
-        <Text
-          className={`flex-1 text-base ${
-            addressData ? "text-[#1a2e1f]" : "text-[#9ca3af]"
-          }`}
-          numberOfLines={1}
-        >
+        <Ionicons name="map-outline" size={20} color="#657c69" style={{ marginRight: 12 }} />
+        <Text className={`flex-1 text-base ${addressData ? "text-[#1a2e1f]" : "text-[#9ca3af]"}`} numberOfLines={1}>
           {displayText}
         </Text>
         <Ionicons name="chevron-forward" size={20} color="#657c69" />
       </TouchableOpacity>
 
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
         <View className="flex-1 bg-[#eff2f0]">
           {/* Header */}
           <View className="bg-white px-6 pt-12 pb-4 flex-row items-center justify-between border-b border-[#e5e7eb]">
             <TouchableOpacity onPress={() => setModalVisible(false)}>
               <Ionicons name="close" size={24} color="#1a2e1f" />
             </TouchableOpacity>
-            <Text className="text-lg font-semibold text-[#1a2e1f]">
-              Select Location
-            </Text>
+            <Text className="text-lg font-semibold text-[#1a2e1f]">Select Location</Text>
             <TouchableOpacity onPress={handleConfirm} disabled={!addressData}>
-              <Text
-                className={`text-base font-semibold ${
-                  addressData ? "text-[#16a34a]" : "text-[#9ca3af]"
-                }`}
-              >
+              <Text className={`text-base font-semibold ${addressData ? "text-[#16a34a]" : "text-[#9ca3af]"}`}>
                 Confirm
               </Text>
             </TouchableOpacity>
@@ -511,9 +430,7 @@ export default function MapPicker({
           <CustomSafeAreaView useSafeArea className="grow  ">
             <MapView
               ref={mapRef}
-              provider={
-                Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
-              }
+              provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
               style={StyleSheet.absoluteFillObject}
               initialRegion={
                 selectedLocation
@@ -581,9 +498,7 @@ export default function MapPicker({
               <View className="absolute inset-0 bg-black/20 items-center justify-center z-20">
                 <View className="bg-white rounded-2xl px-6 py-4 items-center shadow-lg">
                   <ActivityIndicator size="large" color="#16a34a" />
-                  <Text className="text-sm text-[#1a2e1f] mt-3 font-medium">
-                    Getting your location...
-                  </Text>
+                  <Text className="text-sm text-[#1a2e1f] mt-3 font-medium">Getting your location...</Text>
                 </View>
               </View>
             )}
@@ -594,34 +509,24 @@ export default function MapPicker({
             {isLoadingAddress ? (
               <View className="flex-row items-center py-2">
                 <ActivityIndicator size="small" color="#16a34a" />
-                <Text className="text-sm text-[#657c69] ml-2">
-                  Loading address...
-                </Text>
+                <Text className="text-sm text-[#657c69] ml-2">Loading address...</Text>
               </View>
             ) : addressData ? (
               <>
-                <Text className="text-sm font-semibold text-[#1a2e1f] mb-2">
-                  Selected Address
-                </Text>
-                <Text className="text-sm text-[#657c69]">
-                  {addressData.street || "Street not available"}
-                </Text>
+                <Text className="text-sm font-semibold text-[#1a2e1f] mb-2">Selected Address</Text>
+                <Text className="text-sm text-[#657c69]">{addressData.street || "Street not available"}</Text>
                 <Text className="text-sm text-[#657c69]">
                   {addressData.city || "City not available"}
                   {addressData.state && `, ${addressData.state}`}
                   {addressData.postalCode && ` ${addressData.postalCode}`}
                 </Text>
-                <Text className="text-sm text-[#657c69]">
-                  {addressData.country || "Country not available"}
-                </Text>
+                <Text className="text-sm text-[#657c69]">{addressData.country || "Country not available"}</Text>
                 <Text className="text-xs text-[#9ca3af] mt-2">
                   Tap on the map or drag the marker to change location
                 </Text>
               </>
             ) : (
-              <Text className="text-sm text-[#657c69]">
-                Select a location on the map
-              </Text>
+              <Text className="text-sm text-[#657c69]">Select a location on the map</Text>
             )}
           </View>
         </View>
