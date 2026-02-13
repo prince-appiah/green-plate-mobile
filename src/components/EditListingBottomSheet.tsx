@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from "react";
+import MapPicker, { AddressData } from "@/components/MapPicker";
+import { Input } from "@/components/ui/Input/input";
+import { useGetListingById, useUpdateListing } from "@/features/listings";
+import { formatTime24Hour, ListingCategories, useImagePicker } from "@/features/shared";
+import { Ionicons } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  ScrollView,
   ActivityIndicator,
   Alert,
-  TextInput,
   Image,
-  Platform,
   KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useGetListingById, useUpdateListing } from "@/features/listings";
-import { Input } from "@/components/ui/Input/input";
-import { CategoryPicker } from "@/components/screens/restaurants/CategoryPicker/category-picker";
-import { TimePicker } from "@/components/screens/restaurants/TimePicker/time-picker";
-import { ListingCategories, useImagePicker } from "@/features/shared";
-import MapPicker, { AddressData } from "@/components/MapPicker";
-import { formatTime24Hour } from "@/features/shared";
+import { CategoryPicker } from "./CategoryPicker/category-picker";
+import { TimePicker } from "./TimePicker/time-picker";
 
 // Zod schema for form validation (same as create listing)
 const editListingSchema = z.object({
@@ -74,10 +73,7 @@ export default function EditListingBottomSheet({
   listingId,
   onSuccess,
 }: EditListingBottomSheetProps) {
-  const {
-    data: listingResponse,
-    isPending: isLoadingListing,
-  } = useGetListingById(listingId, visible);
+  const { data: listingResponse, isPending: isLoadingListing } = useGetListingById(listingId, visible);
   const listing = listingResponse?.success ? listingResponse.data : null;
 
   const {
@@ -109,14 +105,10 @@ export default function EditListingBottomSheet({
   useEffect(() => {
     if (listing && visible) {
       const startTime = formatTime24Hour(
-        typeof listing.pickup.startTime === "string"
-          ? new Date(listing.pickup.startTime)
-          : listing.pickup.startTime
+        typeof listing.pickup.startTime === "string" ? new Date(listing.pickup.startTime) : listing.pickup.startTime,
       );
       const endTime = formatTime24Hour(
-        typeof listing.pickup.endTime === "string"
-          ? new Date(listing.pickup.endTime)
-          : listing.pickup.endTime
+        typeof listing.pickup.endTime === "string" ? new Date(listing.pickup.endTime) : listing.pickup.endTime,
       );
 
       reset({
@@ -137,7 +129,6 @@ export default function EditListingBottomSheet({
       if (listing.pickup.location?.coordinates) {
         setLocationData({
           coordinates: listing.pickup.location.coordinates,
-          address: "", // We don't have address in the listing, but coordinates are enough
         });
       }
     }
@@ -175,23 +166,18 @@ export default function EditListingBottomSheet({
       return;
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const parseTimeString = (timeString: string): Date => {
-      const [hours, minutes] = timeString.split(":").map(Number);
-      const date = new Date(today);
-      date.setHours(hours, minutes, 0, 0);
-      return date;
+    // Format time strings from "HH:mm" to "HH:mm:ss" format
+    const formatTimeString = (timeString: string): string => {
+      // If already in HH:mm:ss format, return as is
+      if (timeString.split(":").length === 3) {
+        return timeString;
+      }
+      // Otherwise, add ":00" for seconds
+      return `${timeString}:00`;
     };
 
-    const pickupStartDate = parseTimeString(data.pickupStart);
-    let pickupEndDate = parseTimeString(data.pickupEnd);
-
-    if (pickupEndDate <= pickupStartDate) {
-      pickupEndDate = new Date(pickupEndDate);
-      pickupEndDate.setDate(pickupEndDate.getDate() + 1);
-    }
+    const pickupStartTime = formatTimeString(data.pickupStart);
+    const pickupEndTime = formatTimeString(data.pickupEnd);
 
     const payload = {
       listingId,
@@ -204,8 +190,8 @@ export default function EditListingBottomSheet({
       quantityTotal: Number(data.quantity),
       maxPerUser: Number(data.maxPerUser),
       pickup: {
-        startTime: pickupStartDate,
-        endTime: pickupEndDate,
+        startTime: pickupStartTime, // Send as time string
+        endTime: pickupEndTime, // Send as time string
         location: {
           coordinates: locationData.coordinates,
         },
@@ -228,47 +214,25 @@ export default function EditListingBottomSheet({
           },
         ]);
       } else {
-        Alert.alert(
-          "Error",
-          response.message || "Failed to update listing. Please try again."
-        );
+        Alert.alert("Error", response.message || "Failed to update listing. Please try again.");
       }
     } catch (error) {
       console.error("Error updating listing:", error);
-      Alert.alert(
-        "Error",
-        error instanceof Error
-          ? error.message
-          : "Failed to update listing. Please try again."
-      );
+      Alert.alert("Error", error instanceof Error ? error.message : "Failed to update listing. Please try again.");
     }
   };
 
   if (!visible) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
         <View className="flex-1 justify-end bg-black/50">
           <View className="bg-white rounded-t-3xl max-h-[90%]">
             {/* Header */}
             <View className="flex-row justify-between items-center px-4 py-4 border-b border-[#e5e7eb]">
-              <Text className="text-xl font-bold text-[#1a2e1f]">
-                Edit Listing
-              </Text>
-              <TouchableOpacity
-                onPress={onClose}
-                disabled={updateListingMutation.isPending}
-                activeOpacity={0.7}
-              >
+              <Text className="text-xl font-bold text-[#1a2e1f]">Edit Listing</Text>
+              <TouchableOpacity onPress={onClose} disabled={updateListingMutation.isPending} activeOpacity={0.7}>
                 <Ionicons name="close" size={24} color="#657c69" />
               </TouchableOpacity>
             </View>
@@ -276,16 +240,12 @@ export default function EditListingBottomSheet({
             {isLoadingListing ? (
               <View className="py-12 items-center justify-center">
                 <ActivityIndicator size="large" color="#16a34a" />
-                <Text className="text-sm text-[#657c69] mt-4">
-                  Loading listing...
-                </Text>
+                <Text className="text-sm text-[#657c69] mt-4">Loading listing...</Text>
               </View>
             ) : !listing ? (
               <View className="py-12 items-center justify-center">
                 <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
-                <Text className="text-sm text-[#657c69] mt-4">
-                  Failed to load listing
-                </Text>
+                <Text className="text-sm text-[#657c69] mt-4">Failed to load listing</Text>
               </View>
             ) : (
               <ScrollView
@@ -295,9 +255,7 @@ export default function EditListingBottomSheet({
               >
                 {/* Photo Section */}
                 <View className="mb-6">
-                  <Text className="text-sm text-[#1a2e1f] font-medium mb-2">
-                    Photo
-                  </Text>
+                  <Text className="text-sm text-[#1a2e1f] font-medium mb-2">Photo</Text>
                   <TouchableOpacity
                     onPress={handlePhotoPress}
                     disabled={isPickingImage}
@@ -306,17 +264,11 @@ export default function EditListingBottomSheet({
                     {isPickingImage ? (
                       <ActivityIndicator size="large" color="#16a34a" />
                     ) : getImageUri() ? (
-                      <Image
-                        source={{ uri: getImageUri()! }}
-                        className="w-full h-full rounded-lg"
-                        resizeMode="cover"
-                      />
+                      <Image source={{ uri: getImageUri()! }} className="w-full h-full rounded-lg" resizeMode="cover" />
                     ) : (
                       <>
                         <Ionicons name="camera-outline" size={48} color="#9ca3af" />
-                        <Text className="text-sm text-[#9ca3af] mt-2">
-                          Tap to change photo
-                        </Text>
+                        <Text className="text-sm text-[#9ca3af] mt-2">Tap to change photo</Text>
                       </>
                     )}
                   </TouchableOpacity>
@@ -359,9 +311,7 @@ export default function EditListingBottomSheet({
                         }`}
                       />
                       {errors.description && (
-                        <Text className="mt-1 text-sm text-red-500">
-                          {errors.description.message}
-                        </Text>
+                        <Text className="mt-1 text-sm text-red-500">{errors.description.message}</Text>
                       )}
                     </View>
                   )}
@@ -431,9 +381,7 @@ export default function EditListingBottomSheet({
                           </Text>
                           <View
                             className={`flex-row items-center bg-[#f9fafb] rounded-lg border px-4 py-3 ${
-                              errors.originalPrice
-                                ? "border-red-500"
-                                : "border-[#e5e7eb]"
+                              errors.originalPrice ? "border-red-500" : "border-[#e5e7eb]"
                             }`}
                           >
                             <Text className="text-base text-[#1a2e1f] mr-2">$</Text>
@@ -448,9 +396,7 @@ export default function EditListingBottomSheet({
                             />
                           </View>
                           {errors.originalPrice && (
-                            <Text className="mt-1 text-sm text-red-500">
-                              {errors.originalPrice.message}
-                            </Text>
+                            <Text className="mt-1 text-sm text-red-500">{errors.originalPrice.message}</Text>
                           )}
                         </View>
                       )}
@@ -482,9 +428,7 @@ export default function EditListingBottomSheet({
                             />
                           </View>
                           {errors.salePrice && (
-                            <Text className="mt-1 text-sm text-red-500">
-                              {errors.salePrice.message}
-                            </Text>
+                            <Text className="mt-1 text-sm text-red-500">{errors.salePrice.message}</Text>
                           )}
                         </View>
                       )}
@@ -541,11 +485,7 @@ export default function EditListingBottomSheet({
                   <Text className="text-sm text-[#1a2e1f] font-medium mb-2">
                     Pickup Location <Text className="text-red-500">*</Text>
                   </Text>
-                  {!locationData && (
-                    <Text className="text-xs text-red-500 mb-2">
-                      Please select a pickup location
-                    </Text>
-                  )}
+                  {!locationData && <Text className="text-xs text-red-500 mb-2">Please select a pickup location</Text>}
                   <MapPicker
                     onLocationSelect={handleLocationSelect}
                     initialLocation={
@@ -578,15 +518,11 @@ export default function EditListingBottomSheet({
                         numberOfLines={3}
                         textAlignVertical="top"
                         className={`bg-[#f9fafb] rounded-lg border px-4 py-3 text-base text-[#1a2e1f] min-h-[80px] ${
-                          errors.pickupInstructions
-                            ? "border-red-500"
-                            : "border-[#e5e7eb]"
+                          errors.pickupInstructions ? "border-red-500" : "border-[#e5e7eb]"
                         }`}
                       />
                       {errors.pickupInstructions && (
-                        <Text className="mt-1 text-sm text-red-500">
-                          {errors.pickupInstructions.message}
-                        </Text>
+                        <Text className="mt-1 text-sm text-red-500">{errors.pickupInstructions.message}</Text>
                       )}
                     </View>
                   )}
@@ -599,28 +535,16 @@ export default function EditListingBottomSheet({
               <View className="px-4 py-4 border-t border-[#e5e7eb] bg-white">
                 <TouchableOpacity
                   onPress={handleSubmit(onSubmit)}
-                  disabled={
-                    !isValid ||
-                    updateListingMutation.isPending ||
-                    !locationData ||
-                    isLoadingListing
-                  }
+                  disabled={!isValid || updateListingMutation.isPending || !locationData || isLoadingListing}
                   className={`bg-[#16a34a] rounded-2xl py-4 items-center justify-center ${
-                    isValid &&
-                    !updateListingMutation.isPending &&
-                    locationData &&
-                    !isLoadingListing
-                      ? ""
-                      : "opacity-50"
+                    isValid && !updateListingMutation.isPending && locationData && !isLoadingListing ? "" : "opacity-50"
                   }`}
                   activeOpacity={0.8}
                 >
                   {updateListingMutation.isPending ? (
                     <ActivityIndicator size="small" color="#ffffff" />
                   ) : (
-                    <Text className="text-white text-lg font-bold">
-                      Save Changes
-                    </Text>
+                    <Text className="text-white text-lg font-bold">Save Changes</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -631,4 +555,3 @@ export default function EditListingBottomSheet({
     </Modal>
   );
 }
-

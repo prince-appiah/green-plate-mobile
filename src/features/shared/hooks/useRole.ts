@@ -1,15 +1,9 @@
-import { useMemo } from 'react';
-import { useAuthStore } from '@/stores/auth-store';
-import {
-  hasRole,
-  hasAnyRole,
-  isConsumer,
-  isRestaurant,
-  getRoleRoute,
-} from '../utils/role-utils';
-import { hasPermission, hasAnyPermission, hasAllPermissions } from '../utils/permission-utils';
-import type { Permission } from '../utils/permission-utils';
-import { UserRole, User } from '../types/user.types';
+import { useAuthStore } from "@/stores/auth-store";
+import { useMemo } from "react";
+import { BaseUser, IUserRole } from "../types/user.types";
+import type { Permission } from "../utils/permission-utils";
+import { hasAllPermissions, hasAnyPermission, hasPermission } from "../utils/permission-utils";
+import { getRoleRoute, hasAnyRole, hasRole, isConsumer, isRestaurant } from "../utils/role-utils";
 
 /**
  * Hook to check user roles
@@ -20,14 +14,14 @@ export function useRole() {
 
   return useMemo(
     () => ({
-      user: user as User | null,
+      user: user as BaseUser | null,
       isLoading: false, // Will be updated when React Query is integrated
-      role: user?.role as UserRole | undefined,
-      hasRole: (role: UserRole) => hasRole(user as User | null, role),
-      hasAnyRole: (roles: UserRole[]) => hasAnyRole(user as User | null, roles),
-      isConsumer: isConsumer(user as User | null),
-      isRestaurant: isRestaurant(user as User | null),
-      roleRoute: getRoleRoute(user?.role as UserRole | undefined),
+      role: user?.role as IUserRole | undefined,
+      hasRole: (role: IUserRole) => hasRole(user as BaseUser | null, role),
+      hasAnyRole: (roles: IUserRole[]) => hasAnyRole(user as BaseUser | null, roles),
+      isConsumer: isConsumer(user as BaseUser | null),
+      isRestaurant: isRestaurant(user as BaseUser | null),
+      roleRoute: getRoleRoute(user?.role as IUserRole | undefined),
     }),
     [user]
   );
@@ -42,14 +36,10 @@ export function usePermission() {
 
   return useMemo(
     () => ({
-      hasPermission: (permission: Permission) => 
-        hasPermission(user as User | null, permission),
-      hasAnyPermission: (permissions: Permission[]) =>
-        hasAnyPermission(user as User | null, permissions),
-      hasAllPermissions: (permissions: Permission[]) =>
-        hasAllPermissions(user as User | null, permissions),
+      hasPermission: (permission: Permission) => hasPermission(user as BaseUser | null, permission),
+      hasAnyPermission: (permissions: Permission[]) => hasAnyPermission(user as BaseUser | null, permissions),
+      hasAllPermissions: (permissions: Permission[]) => hasAllPermissions(user as BaseUser | null, permissions),
     }),
     [user]
   );
 }
-

@@ -1,31 +1,33 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StatusBar,
-  ActivityIndicator,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useOnboarding } from "../../contexts/OnboardingContext";
-import {
-  useCompleteCustomerOnboarding,
-  useGetOnboardingStatus,
-} from "@/features/onboarding";
+import { useGetOnboardingStatus } from "@/features/onboarding";
 import { IUserRole } from "@/features/shared";
+import { useEffect } from "react";
 
 export default function CompleteScreen() {
-  const { onboardingData } = useOnboarding();
   const { data: onboardingStatus } = useGetOnboardingStatus();
-  const { mutate: completeCustomerOnboarding, isPending } =
-    useCompleteCustomerOnboarding();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const role = onboardingStatus?.data?.role as IUserRole | undefined;
   const isRestaurant = role === "restaurantOwner";
+  const preferencesCompleted = onboardingStatus?.data?.preferencesCompleted;
+
+  // Auto-navigate if onboarding is complete
+  useEffect(() => {
+    if (onboardingStatus?.data?.onboardingCompleted) {
+      if (role === "consumer") {
+        router.replace("/(consumers)");
+      } else if (role === "restaurantOwner") {
+        router.replace("/(restaurants)");
+      }
+    }
+  }, [onboardingStatus, role]);
 
   const handleFinish = () => {
     if (isRestaurant) {
@@ -34,35 +36,13 @@ export default function CompleteScreen() {
       return;
     }
 
-    // For customers, submit onboarding data
-    if (!onboardingData.dietaryPreferences) {
-      Alert.alert(
-        "Missing Information",
-        "Please complete all onboarding steps before finishing."
-      );
-      return;
+    // For customers, preferences are already submitted, just navigate
+    if (preferencesCompleted) {
+      router.replace("/(consumers)");
+    } else {
+      // If preferences not completed, go back to preferences
+      router.push("/(onboarding)/preferences");
     }
-
-    setIsSubmitting(true);
-    completeCustomerOnboarding(
-      {
-        dietary: onboardingData.dietaryPreferences.filter((p) => p !== "None"),
-        radiusKm: 10, // Default radius, can be made configurable later
-      },
-      {
-        onSuccess: () => {
-          router.replace("/(consumers)");
-        },
-        onError: (error) => {
-          console.error("Error completing onboarding:", error);
-          Alert.alert(
-            "Error",
-            "Failed to complete onboarding. Please try again."
-          );
-          setIsSubmitting(false);
-        },
-      }
-    );
   };
 
   return (
@@ -86,23 +66,12 @@ export default function CompleteScreen() {
         <View className="w-full max-w-sm mt-8">
           <TouchableOpacity
             onPress={handleFinish}
-            disabled={isPending || isSubmitting}
-            className={`rounded-full h-14 flex-row items-center justify-center shadow-sm ${
-              isPending || isSubmitting
-                ? "bg-[#9ca3af]"
-                : "bg-[#16a34a]"
-            }`}
+            className="rounded-full h-14 flex-row items-center justify-center shadow-sm bg-[#16a34a]"
           >
-            {isPending || isSubmitting ? (
-              <ActivityIndicator size="small" color="#ffffff" />
-            ) : (
-              <>
-                <Text className="text-white font-semibold text-base mr-2">
-                  Get Started
-                </Text>
-                <Ionicons name="arrow-forward" size={20} color="#ffffff" />
-              </>
-            )}
+            <Text className="text-white font-semibold text-base mr-2">
+              Get Started
+            </Text>
+            <Ionicons name="arrow-forward" size={20} color="#ffffff" />
           </TouchableOpacity>
         </View>
       </View>

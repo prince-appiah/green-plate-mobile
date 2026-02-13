@@ -36,10 +36,6 @@ target 'cleanplate' do
     ]
   end
 
-    # Add Google Maps SDK for iOS
-    pod 'GoogleMaps'
-    pod 'Google-Maps-iOS-Utils' # Optional but recommended 
-
   config = use_native_modules!(config_command)
 
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']

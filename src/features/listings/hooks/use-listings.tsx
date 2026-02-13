@@ -1,18 +1,19 @@
+import { useGetUserInfo } from "@/features/auth";
 import { transformError } from "@/lib/try-catch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
-import {
-  CreateListingPayload,
-  GetOwnListingsQuery,
-  UpdateListingPayload,
-} from "../services/listings-types";
+import { CreateListingPayload, GetOwnListingsQuery, UpdateListingPayload } from "../services/listings-types";
 import { listingsService } from "../services/listings.service";
 import { listingsQueryKeys } from "./listings-query-keys";
 
 export const useGetOwnListings = (query?: GetOwnListingsQuery) => {
+  const { data } = useGetUserInfo();
+  const user = data?.data;
+
   return useQuery({
     queryKey: listingsQueryKeys.ownListings(query),
     queryFn: () => listingsService.getOwnListings(query || {}),
+    enabled: !!user,
   });
 };
 
@@ -29,8 +30,7 @@ export const useCreateListing = () => {
 
   return useMutation({
     mutationKey: ["create-listing"],
-    mutationFn: (payload: CreateListingPayload) =>
-      listingsService.createListing(payload),
+    mutationFn: (payload: CreateListingPayload) => listingsService.createListing(payload),
     onSuccess: () => {
       // Invalidate own listings to refetch with the new listing
       queryClient.invalidateQueries({
@@ -48,8 +48,7 @@ export const useUpdateListing = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UpdateListingPayload) =>
-      listingsService.updateListing(payload),
+    mutationFn: (payload: UpdateListingPayload) => listingsService.updateListing(payload),
     onSuccess: (data, variables) => {
       // Invalidate the specific listing detail
       queryClient.invalidateQueries({

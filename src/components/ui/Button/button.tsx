@@ -1,12 +1,12 @@
 import React from "react";
-import { TouchableOpacity, Text, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import { tv, type VariantProps } from "tailwind-variants";
 
 /**
  * Button variants defined using Uniwind's cva (Class Variance Authority)
  */
 const buttonVariants = tv({
-  base: "flex flex-row items-center justify-center rounded-xl px-4 py-3 active:opacity-70 transition-all",
+  base: "flex flex-row items-center justify-center rounded-xl px-4 py-3 active:opacity-70 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
   variants: {
     variant: {
       primary: "bg-green-600",
@@ -53,9 +53,7 @@ const textVariants = tv({
 });
 
 interface ButtonProps
-  extends
-    React.ComponentPropsWithoutRef<typeof TouchableOpacity>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ComponentPropsWithoutRef<typeof TouchableOpacity>, VariantProps<typeof buttonVariants> {
   children: React.ReactNode;
   isLoading?: boolean;
   textClassName?: string;
@@ -82,18 +80,9 @@ const Button = ({
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator
-          size="small"
-          color={
-            variant === "outline" || variant === "ghost" ? "#16a34a" : "#ffffff"
-          }
-        />
+        <ActivityIndicator size="small" color={variant === "outline" || variant === "ghost" ? "#16a34a" : "#ffffff"} />
       ) : (
-        <Text
-          className={textVariants({ variant, size, className: textClassName })}
-        >
-          {children}
-        </Text>
+        <Text className={textVariants({ variant, size, className: textClassName })}>{children}</Text>
       )}
     </TouchableOpacity>
   );

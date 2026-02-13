@@ -1,12 +1,6 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-} from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IUserRole } from "@/features/shared";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 export interface OnboardingData {
   // Step 1: Role Selection
@@ -44,16 +38,12 @@ interface OnboardingContextType {
   getStoredRole: () => Promise<IUserRole | undefined>;
 }
 
-const OnboardingContext = createContext<OnboardingContextType | undefined>(
-  undefined
-);
+const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
 const ONBOARDING_STORAGE_KEY = "@clean_plate:onboarding";
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>(
-    {}
-  );
+  const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({});
 
   // Load stored onboarding data on mount
   useEffect(() => {

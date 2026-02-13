@@ -1,3 +1,10 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export type QueryValue = string | number | boolean | null | undefined | Date;
 export type QueryObject = Record<string, QueryValue>;
 
@@ -7,9 +14,7 @@ export type QueryObject = Record<string, QueryValue>;
  * so the passed query must match that interface:
  *   buildQueryParams<GetActivityLogQuery>(query)
  */
-export function buildQueryParams<T extends QueryObject = QueryObject>(
-  query?: T
-): URLSearchParams {
+export function buildQueryParams<T extends QueryObject = QueryObject>(query?: T): URLSearchParams {
   const queryParams = new URLSearchParams();
   if (!query) return queryParams;
 
@@ -23,3 +28,12 @@ export function buildQueryParams<T extends QueryObject = QueryObject>(
 
   return queryParams;
 }
+
+export const getImageUri = (photo: string) => {
+  if (!photo) return null;
+  if (photo.startsWith("data:")) {
+    return photo;
+  }
+
+  return photo;
+};

@@ -5,29 +5,27 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useOnboarding } from "../../contexts/OnboardingContext";
 import {
   preferencesSchema,
   type PreferencesFormData,
   DIETARY_OPTIONS,
-  CUISINE_OPTIONS,
-  BUDGET_RANGE_OPTIONS,
+  useSubmitCustomerPreferences,
 } from "@/features/onboarding";
 
-const BUDGET_OPTIONS = [
-  { label: "$", value: "low" as const, description: "Budget-friendly" },
-  { label: "$$", value: "medium" as const, description: "Moderate" },
-  { label: "$$$", value: "high" as const, description: "Premium" },
-];
-
 export default function PreferencesScreen() {
-  const { onboardingData, updateOnboardingData } = useOnboarding();
+  const params = useLocalSearchParams<{
+    latitude?: string;
+    longitude?: string;
+  }>();
+  const { mutate: submitCustomerPreferences, isPending } =
+    useSubmitCustomerPreferences();
 
   const {
     control,
@@ -38,16 +36,15 @@ export default function PreferencesScreen() {
     resolver: zodResolver(preferencesSchema),
     mode: "onChange",
     defaultValues: {
-      dietaryPreferences: onboardingData.dietaryPreferences || [],
-      favoriteCuisines: onboardingData.favoriteCuisines || [],
-      budgetRange: (onboardingData.budgetRange as "low" | "medium" | "high") || "medium",
-      radiusKm: 10,
+      dietary: [],
+      location: {
+        latitude: 0,
+        longitude: 0,
+      },
     },
   });
 
-  const dietaryPreferences = watch("dietaryPreferences");
-  const favoriteCuisines = watch("favoriteCuisines");
-  const budgetRange = watch("budgetRange");
+  const dietary = watch("dietary");
 
   const toggleDietaryPreference = (
     pref: string,
@@ -66,34 +63,44 @@ export default function PreferencesScreen() {
     }
   };
 
-  const toggleCuisine = (
-    cuisine: string,
-    current: string[],
-    onChange: (value: string[]) => void
-  ) => {
-    if (current.includes(cuisine)) {
-      onChange(current.filter((c) => c !== cuisine));
-    } else {
-      onChange([...current, cuisine]);
-    }
-  };
-
   const onSubmit = (data: PreferencesFormData) => {
-    updateOnboardingData({
-      dietaryPreferences: data.dietaryPreferences,
-      favoriteCuisines: data.favoriteCuisines,
-      budgetRange: data.budgetRange,
-    });
-    router.push("/(onboarding)/complete");
+    // Get location coordinates from route params
+    const latitude = params.latitude ? parseFloat(params.latitude) : null;
+    const longitude = params.longitude ? parseFloat(params.longitude) : null;
+
+    if (!latitude || !longitude) {
+      Alert.alert(
+        "Location Required",
+        "Please go back and allow location access to continue."
+      );
+      return;
+    }
+
+    // Submit preferences with location coordinates
+    submitCustomerPreferences(
+      {
+        dietary: data.dietary.filter((p) => p !== "None"),
+        location: {
+          latitude,
+          longitude,
+        },
+      },
+      {
+        onSuccess: () => {
+          router.push("/(onboarding)/complete");
+        },
+        onError: (error) => {
+          console.error("Error submitting preferences:", error);
+          Alert.alert("Error", "Failed to save preferences. Please try again.");
+        },
+      }
+    );
   };
 
   return (
     <SafeAreaView className="flex-1 bg-[#eff2f0]">
       <StatusBar barStyle="dark-content" />
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        className="flex-1"
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="flex-1">
         <View className="flex-1 px-6 pt-8">
           {/* Header */}
           <View className="mb-8">
@@ -115,7 +122,7 @@ export default function PreferencesScreen() {
             </Text>
             <Controller
               control={control}
-              name="dietaryPreferences"
+              name="dietary"
               render={({ field: { onChange, value } }) => (
                 <View className="flex-row flex-wrap">
                   {DIETARY_OPTIONS.map((option) => (
@@ -144,97 +151,9 @@ export default function PreferencesScreen() {
                 </View>
               )}
             />
-            {errors.dietaryPreferences && (
+            {errors.dietary && (
               <Text className="mt-2 text-sm text-red-500">
-                {errors.dietaryPreferences.message}
-              </Text>
-            )}
-          </View>
-
-          {/* Favorite Cuisines */}
-          <View className="mb-8">
-            <Text className="text-lg font-semibold text-[#1a2e1f] mb-4">
-              Favorite Cuisines
-            </Text>
-            <Controller
-              control={control}
-              name="favoriteCuisines"
-              render={({ field: { onChange, value } }) => (
-                <View className="flex-row flex-wrap">
-                  {CUISINE_OPTIONS.map((cuisine) => (
-                    <TouchableOpacity
-                      key={cuisine}
-                      onPress={() =>
-                        toggleCuisine(cuisine, value || [], onChange)
-                      }
-                      className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
-                        (value || []).includes(cuisine)
-                          ? "bg-[#16a34a] border-[#16a34a]"
-                          : "bg-white border-[#e5e7eb]"
-                      }`}
-                    >
-                      <Text
-                        className={`text-sm font-medium ${
-                          (value || []).includes(cuisine)
-                            ? "text-white"
-                            : "text-[#1a2e1f]"
-                        }`}
-                      >
-                        {cuisine}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            />
-          </View>
-
-          {/* Budget Range */}
-          <View className="mb-8">
-            <Text className="text-lg font-semibold text-[#1a2e1f] mb-4">
-              Budget Range
-            </Text>
-            <Controller
-              control={control}
-              name="budgetRange"
-              render={({ field: { onChange, value } }) => (
-                <View className="flex-row justify-between">
-                  {BUDGET_OPTIONS.map((option) => (
-                    <TouchableOpacity
-                      key={option.value}
-                      onPress={() => onChange(option.value)}
-                      className={`flex-1 mx-1 py-4 rounded-xl border items-center ${
-                        value === option.value
-                          ? "bg-[#16a34a] border-[#16a34a]"
-                          : "bg-white border-[#e5e7eb]"
-                      }`}
-                    >
-                      <Text
-                        className={`text-2xl font-bold mb-1 ${
-                          value === option.value
-                            ? "text-white"
-                            : "text-[#1a2e1f]"
-                        }`}
-                      >
-                        {option.label}
-                      </Text>
-                      <Text
-                        className={`text-xs ${
-                          value === option.value
-                            ? "text-white"
-                            : "text-[#657c69]"
-                        }`}
-                      >
-                        {option.description}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            />
-            {errors.budgetRange && (
-              <Text className="mt-2 text-sm text-red-500">
-                {errors.budgetRange.message}
+                {errors.dietary.message}
               </Text>
             )}
           </View>
@@ -243,15 +162,23 @@ export default function PreferencesScreen() {
           <View className="pb-8">
             <TouchableOpacity
               onPress={handleSubmit(onSubmit)}
-              disabled={!isValid}
+              disabled={!isValid || isPending}
               className={`rounded-full h-14 flex-row items-center justify-center ${
-                isValid ? "bg-[#16a34a]" : "bg-[#9ca3af]"
+                isValid && !isPending ? "bg-[#16a34a]" : "bg-[#9ca3af]"
               }`}
             >
-              <Text className="text-white font-semibold text-base mr-2">
-                Continue
-              </Text>
-              <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+              {isPending ? (
+                <Text className="text-white font-semibold text-base">
+                  Saving...
+                </Text>
+              ) : (
+                <>
+                  <Text className="text-white font-semibold text-base mr-2">
+                    Continue
+                  </Text>
+                  <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+                </>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -259,4 +186,3 @@ export default function PreferencesScreen() {
     </SafeAreaView>
   );
 }
-

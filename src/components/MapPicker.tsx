@@ -7,11 +7,11 @@ import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE, Region } from "reac
 import CustomSafeAreaView from "./ui/SafeAreaView/safe-area-view";
 
 export interface AddressData {
-  street: string;
-  city: string;
-  country: string;
+  street?: string;
+  city?: string;
+  country?: string;
   coordinates: [number, number]; // [longitude, latitude]
-  postalCode?: string;
+  postalCode?: number;
   state?: string;
 }
 
@@ -166,7 +166,7 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
           Alert.alert(
             "Address Not Available",
             "Unable to get address for this location. Please try selecting a different location.",
-            [{ text: "OK" }]
+            [{ text: "OK" }],
           );
         }
       }
@@ -190,7 +190,7 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
         Alert.alert(
           "Location Permission Required",
           "Please enable location permissions in your device settings to use this feature.",
-          [{ text: "OK" }]
+          [{ text: "OK" }],
         );
         setIsLoadingLocation(false);
         return;
@@ -224,7 +224,7 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
       Alert.alert(
         "Location Error",
         "Unable to get your current location. Please make sure location services are enabled and try again.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
     } finally {
       setIsLoadingLocation(false);
@@ -246,7 +246,7 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         },
-        500
+        500,
       );
     }
   };
@@ -266,7 +266,7 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
       Alert.alert(
         "Location Required",
         "Please select a location on the map or use the location button to get your current location.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
     }
   };
@@ -274,8 +274,8 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
   const displayText = addressData
     ? `${addressData.street || "Unknown"}, ${addressData.city || "Unknown"}, ${addressData.country || "Unknown"}`
     : selectedLocation
-    ? "Tap to select location"
-    : "Select location on map";
+      ? "Tap to select location"
+      : "Select location on map";
 
   // Render inline map view
   if (inline) {
@@ -293,7 +293,7 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
             showsUserLocation={true}
             showsMyLocationButton={true}
             // loadingEnabled={false}
-            mapType="standard"
+            mapType="satellite"
             onMapReady={handleOnMapReady}
             // onMapReady={() => {
             //   console.log("Map ref loaded:", mapRef.current);

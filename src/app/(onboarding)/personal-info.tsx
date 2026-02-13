@@ -11,16 +11,22 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useOnboarding } from "../../contexts/OnboardingContext";
 import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
 import { Input } from "@/components/ui/Input/input";
 import {
   personalInfoSchema,
+  useSubmitCustomerBasicInfo,
+  useGetOnboardingStatus,
   type PersonalInfoFormData,
 } from "@/features/onboarding";
 
 export default function PersonalInfoScreen() {
-  const { onboardingData, updateOnboardingData } = useOnboarding();
+  const { data: onboardingStatus } = useGetOnboardingStatus();
+  const { mutate: submitCustomerBasicInfo, isPending } =
+    useSubmitCustomerBasicInfo();
+
+  // Get phoneNumber from server if available (though API may not return it)
+  const phoneNumber = ""; // API doesn't return saved phoneNumber, so start fresh
 
   const {
     control,
@@ -30,17 +36,24 @@ export default function PersonalInfoScreen() {
     resolver: zodResolver(personalInfoSchema),
     mode: "onChange",
     defaultValues: {
-      fullName: onboardingData.fullName || "",
-      phoneNumber: onboardingData.phoneNumber || "",
+      fullName: "",
+      phoneNumber: phoneNumber,
     },
   });
 
   const onSubmit = (data: PersonalInfoFormData) => {
-    updateOnboardingData({
-      fullName: data.fullName.trim(),
-      phoneNumber: data.phoneNumber.trim(),
-    });
-    router.push("/(onboarding)/location");
+    // Submit only phoneNumber to API (fullName is collected but not in API payload)
+    submitCustomerBasicInfo(
+      { phoneNumber: data.phoneNumber.trim() },
+      {
+        onSuccess: () => {
+          router.push("/(onboarding)/location");
+        },
+        onError: (error) => {
+          console.error("Error submitting customer basic info:", error);
+        },
+      }
+    );
   };
 
   return (

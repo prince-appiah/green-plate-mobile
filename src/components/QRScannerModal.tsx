@@ -91,7 +91,7 @@ export default function QRScannerModal({
         ) : (
           <>
             <CameraView
-              style={styles.camera}
+              style={StyleSheet.absoluteFillObject}
               facing="back"
               barcodeScannerSettings={{
                 barcodeTypes: ["qr"],
@@ -101,63 +101,62 @@ export default function QRScannerModal({
                   ? handleBarCodeScanned
                   : undefined
               }
-            >
-              <View style={styles.overlay}>
-                {/* Top bar with close button */}
-                <View style={styles.topBar}>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={onClose}
-                  >
-                    <Ionicons name="close" size={28} color="#ffffff" />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Scanning frame */}
-                <View style={styles.scanFrame}>
-                  <View style={styles.frameContainer}>
-                    {/* Top left corner */}
-                    <View style={[styles.corner, styles.topLeft]} />
-                    {/* Top right corner */}
-                    <View style={[styles.corner, styles.topRight]} />
-                    {/* Bottom left corner */}
-                    <View style={[styles.corner, styles.bottomLeft]} />
-                    {/* Bottom right corner */}
-                    <View style={[styles.corner, styles.bottomRight]} />
-                  </View>
-                </View>
-
-                {/* Instructions */}
-                <View style={styles.instructionsContainer}>
-                  <Text style={styles.instructionsText}>
-                    Position the QR code within the frame
-                  </Text>
-                </View>
-
-                {/* Success indicator */}
-                {scannedData && (
-                  <View style={styles.successContainer}>
-                    <View style={styles.successBox}>
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={48}
-                        color="#16a34a"
-                      />
-                      <Text style={styles.successText}>QR Code Scanned!</Text>
-                    </View>
-                  </View>
-                )}
+            />
+            <View style={styles.overlay}>
+              {/* Top bar with close button */}
+              <View style={styles.topBar}>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={onClose}
+                >
+                  <Ionicons name="close" size={28} color="#ffffff" />
+                </TouchableOpacity>
               </View>
-            </CameraView>
+
+              {/* Scanning frame */}
+              <View style={styles.scanFrame}>
+                <View style={styles.frameContainer}>
+                  {/* Top left corner */}
+                  <View style={[styles.corner, styles.topLeft]} />
+                  {/* Top right corner */}
+                  <View style={[styles.corner, styles.topRight]} />
+                  {/* Bottom left corner */}
+                  <View style={[styles.corner, styles.bottomLeft]} />
+                  {/* Bottom right corner */}
+                  <View style={[styles.corner, styles.bottomRight]} />
+                </View>
+              </View>
+
+              {/* Instructions */}
+              <View style={styles.instructionsContainer}>
+                <Text style={styles.instructionsText}>
+                  Position the QR code within the frame
+                </Text>
+              </View>
+
+              {/* Success indicator */}
+              {scannedData && (
+                <View style={styles.successContainer}>
+                  <View style={styles.successBox}>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={48}
+                      color="#16a34a"
+                    />
+                    <Text style={styles.successText}>QR Code Scanned!</Text>
+                  </View>
+                </View>
+              )}
+            </View>
           </>
         )}
 
         {/* Loading indicator */}
-        {isScanning && !scannedData && !error && (
+        {/* {isScanning && !scannedData && !error && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#16a34a" />
           </View>
-        )}
+        )} */}
       </View>
     </Modal>
   );
@@ -170,10 +169,20 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    position: 'absolute',
+    bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
   overlay: {
-    flex: 1,
-    backgroundColor: "transparent",
+    position: 'absolute',
+    bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
   topBar: {
     paddingTop: 50,

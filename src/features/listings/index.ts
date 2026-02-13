@@ -1,4 +1,4 @@
 export * from "./hooks";
-export * from "./services/listings.service";
+export * from "./schemas/create-listing-schema";
 export * from "./services/listings-types";
-
+export * from "./services/listings.service";

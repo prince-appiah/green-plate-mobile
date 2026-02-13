@@ -1,8 +1,7 @@
+import { BaseUser, User } from "@/features/shared";
 import axiosInstanceapi, { BaseApiResponse } from "@/lib/axios";
 import { handleAsync } from "@/lib/try-catch";
 import { GoogleSigninResponse } from "./auth-types";
-import { User } from "@/features/shared";
-import { tokenStorage } from "@/lib/token-storage";
 
 class AuthService {
   private static instance: AuthService;
@@ -19,9 +18,7 @@ class AuthService {
     const fn = await axiosInstanceapi.post(`${this.endpoints.base}/google`, {
       token,
     });
-    const response = await handleAsync<BaseApiResponse<GoogleSigninResponse>>(
-      fn.data
-    );
+    const response = await handleAsync<BaseApiResponse<GoogleSigninResponse>>(fn.data);
     return response;
   }
 
@@ -29,7 +26,7 @@ class AuthService {
     const fn = await axiosInstanceapi.get(`${this.endpoints.base}/me`, {
       requiresAuth: true,
     });
-    const response = await handleAsync<BaseApiResponse<User>>(fn.data);
+    const response = await handleAsync<BaseApiResponse<BaseUser>>(fn.data);
     return response;
   }
 

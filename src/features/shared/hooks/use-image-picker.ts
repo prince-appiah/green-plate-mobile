@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Alert } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system/legacy";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { Alert } from "react-native";
 
 export interface ImagePickerOptions {
   allowsEditing?: boolean;
@@ -40,16 +40,11 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
    */
   const requestPermissions = async (): Promise<boolean> => {
     try {
-      const { status: cameraStatus } =
-        await ImagePicker.requestCameraPermissionsAsync();
-      const { status: mediaLibraryStatus } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+      const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (cameraStatus !== "granted" || mediaLibraryStatus !== "granted") {
-        Alert.alert(
-          "Permission Required",
-          "We need camera and photo library permissions to upload images."
-        );
+        Alert.alert("Permission Required", "We need camera and photo library permissions to upload images.");
         return false;
       }
       return true;
@@ -66,21 +61,17 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
     uri: string,
     compress?: number,
     maxWidth?: number,
-    format?: SaveFormat
+    format?: SaveFormat,
   ): Promise<string> => {
     try {
       let imageUri = uri;
 
       // Optionally resize/compress the image
       if (maxWidth || compress !== undefined) {
-        const manipulatedImage = await manipulateAsync(
-          uri,
-          maxWidth ? [{ resize: { width: maxWidth } }] : [],
-          {
-            compress: compress ?? mergedOptions.compress,
-            format: format ?? mergedOptions.format,
-          }
-        );
+        const manipulatedImage = await manipulateAsync(uri, maxWidth ? [{ resize: { width: maxWidth } }] : [], {
+          compress: compress ?? mergedOptions.compress,
+          format: format ?? mergedOptions.format,
+        });
         imageUri = manipulatedImage.uri;
       }
 
@@ -93,8 +84,7 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
       const mimeType = format === SaveFormat.PNG ? "image/png" : "image/jpeg";
       return `data:${mimeType};base64,${base64}`;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to convert image";
+      const errorMessage = err instanceof Error ? err.message : "Failed to convert image";
       throw new Error(errorMessage);
     }
   };
@@ -102,9 +92,7 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
   /**
    * Pick image from camera
    */
-  const pickFromCamera = async (
-    includeBase64 = false
-  ): Promise<ImagePickerResult | null> => {
+  const pickFromCamera = async (includeBase64 = false): Promise<ImagePickerResult | null> => {
     setIsLoading(true);
     setError(null);
 
@@ -139,15 +127,14 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
           asset.uri,
           mergedOptions.compress,
           mergedOptions.maxWidth,
-          mergedOptions.format
+          mergedOptions.format,
         );
       }
 
       setIsLoading(false);
       return imageResult;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to pick image from camera";
+      const errorMessage = err instanceof Error ? err.message : "Failed to pick image from camera";
       setError(errorMessage);
       setIsLoading(false);
       Alert.alert("Error", errorMessage);
@@ -158,9 +145,7 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
   /**
    * Pick image from gallery
    */
-  const pickFromGallery = async (
-    includeBase64 = false
-  ): Promise<ImagePickerResult | null> => {
+  const pickFromGallery = async (includeBase64 = false): Promise<ImagePickerResult | null> => {
     setIsLoading(true);
     setError(null);
 
@@ -195,17 +180,14 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
           asset.uri,
           mergedOptions.compress,
           mergedOptions.maxWidth,
-          mergedOptions.format
+          mergedOptions.format,
         );
       }
 
       setIsLoading(false);
       return imageResult;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Failed to pick image from gallery";
+      const errorMessage = err instanceof Error ? err.message : "Failed to pick image from gallery";
       setError(errorMessage);
       setIsLoading(false);
       Alert.alert("Error", errorMessage);
@@ -216,9 +198,7 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
   /**
    * Show action sheet to choose between camera and gallery
    */
-  const pickImage = async (
-    includeBase64 = false
-  ): Promise<ImagePickerResult | null> => {
+  const pickImage = async (includeBase64 = false): Promise<ImagePickerResult | null> => {
     return new Promise((resolve) => {
       Alert.alert(
         "Select Photo",
@@ -244,7 +224,7 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
             onPress: () => resolve(null),
           },
         ],
-        { cancelable: true, onDismiss: () => resolve(null) }
+        { cancelable: true, onDismiss: () => resolve(null) },
       );
     });
   };
@@ -253,12 +233,7 @@ export function useImagePicker(options: Partial<ImagePickerOptions> = {}) {
    * Convert existing image URI to base64
    */
   const convertUriToBase64 = async (uri: string): Promise<string> => {
-    return convertToBase64(
-      uri,
-      mergedOptions.compress,
-      mergedOptions.maxWidth,
-      mergedOptions.format
-    );
+    return convertToBase64(uri, mergedOptions.compress, mergedOptions.maxWidth, mergedOptions.format);
   };
 
   return {

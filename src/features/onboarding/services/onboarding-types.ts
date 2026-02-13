@@ -14,6 +14,8 @@ export interface OnboardingStatusResponse {
   roleSelectedAt: Date;
   profileCompleted: boolean;
   profileCompletedAt: Date;
+  preferencesCompleted: boolean;
+  preferencesCompletedAt: Date;
   onboardingCompleted: boolean;
   onboardingCompletedAt: Date;
   nextStep: string;
@@ -30,7 +32,7 @@ export interface RestaurantOnboardingPayload {
     city: string;
     country: string;
     coordinates: [number, number];
-    postalCode?: string;
+    postalCode?: number;
   };
   openingHours: {
     dayOfWeek: string;
@@ -41,9 +43,24 @@ export interface RestaurantOnboardingPayload {
 
 export interface RestaurantOnboardingResponse {}
 
-export interface CustomerOnboardingPayload {
-  dietary: string[];
-  radiusKm: number;
+export interface SubmitCustomerBasicInfoPayload {
+  phoneNumber: string;
 }
 
-export interface CustomerOnboardingResponse {}
+export interface SubmitCustomerBasicInfoResponse {
+  success: boolean;
+}
+
+export interface SubmitCustomerPreferencesPayload {
+  dietary: string[];
+  location: {
+    longitude: number;
+    latitude: number;
+  };
+  // budgetRange: 'low' |'medium' |'high' // for now we are not using this, add in version 2
+  // favoriteCuisines: string[]
+}
+
+export interface SubmitCustomerPreferencesResponse {
+  success: boolean;
+}
