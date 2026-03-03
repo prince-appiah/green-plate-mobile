@@ -1,23 +1,15 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/auth-store";
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { UpdateRestaurantProfilePayload, UpdateRestaurantSettingsPayload } from "../services/restaurants-types";
 import { restaurantsService } from "../services/restaurants.service";
 import { restaurantsQueryKeys } from "./restaurants-query-keys";
-import {
-  UpdateRestaurantProfilePayload,
-  UpdateRestaurantSettingsPayload,
-} from "../services/restaurants-types";
-import { useAuthStore } from "@/stores/auth-store";
 
 const getRestaurantStatsQueryOptions = (email: string) => ({
   queryKey: restaurantsQueryKeys.stats(email),
   queryFn: () => restaurantsService.getMyRestaurantStats(),
 });
 
-export function useGetRestaurantProfile() {
+export function useGetMyRestaurantProfile() {
   const user = useAuthStore((state) => state.user);
   return useQuery({
     queryKey: restaurantsQueryKeys.profile(user?.id!),
@@ -30,8 +22,7 @@ export function useUpdateRestaurantProfile() {
   const user = useAuthStore((state) => state.user);
 
   return useMutation({
-    mutationFn: (payload: UpdateRestaurantProfilePayload) =>
-      restaurantsService.updateProfile(payload),
+    mutationFn: (payload: UpdateRestaurantProfilePayload) => restaurantsService.updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: restaurantsQueryKeys.profile(user?.id!),
@@ -58,8 +49,7 @@ export function useUpdateRestaurantSettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UpdateRestaurantSettingsPayload) =>
-      restaurantsService.updateSettings(payload),
+    mutationFn: (payload: UpdateRestaurantSettingsPayload) => restaurantsService.updateSettings(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: restaurantsQueryKeys.settings(),

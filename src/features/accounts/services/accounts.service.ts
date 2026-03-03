@@ -1,3 +1,4 @@
+import { Restaurant } from "@/features/shared";
 import axiosInstanceapi, { BaseApiResponse } from "@/lib/axios";
 import { handleAsync } from "@/lib/try-catch";
 import { GetProfileResponse } from "./accounts-types";
@@ -17,9 +18,27 @@ class AccountsService {
     const fn = await axiosInstanceapi.get(`${this.endpoints.base}/me/profile`, {
       requiresAuth: true,
     });
-    const response = await handleAsync<BaseApiResponse<GetProfileResponse>>(
-      fn.data
+    const response = await handleAsync<BaseApiResponse<GetProfileResponse>>(fn.data);
+    return response;
+  }
+
+  async deactivateAccount(accountId: string) {
+    const fn = await axiosInstanceapi.delete(`${this.endpoints.base}/${accountId}`, {
+      requiresAuth: true,
+    });
+    const response = await handleAsync<BaseApiResponse<Restaurant>>(fn.data);
+    return response;
+  }
+
+  async deleteAccount(confirmPermanentDeletion: boolean) {
+    const fn = await axiosInstanceapi.post(
+      `${this.endpoints.base}me/delete-permanent`,
+      { confirmPermanentDeletion },
+      {
+        requiresAuth: true,
+      },
     );
+    const response = await handleAsync<BaseApiResponse<null>>(fn.data);
     return response;
   }
 }

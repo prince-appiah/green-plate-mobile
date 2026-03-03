@@ -49,3 +49,6 @@ build-**.apk
 build-**.ipa
 # Added by ggshield
 .cache_ggshield
+
+
+.vscode/

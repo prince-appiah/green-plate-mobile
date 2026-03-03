@@ -25,23 +25,15 @@ class RestaurantsService {
     const fn = await axiosInstanceapi.get(`${this.endpoints.base}/me`, {
       requiresAuth: true,
     });
-    const response = await handleAsync<
-      BaseApiResponse<GetRestaurantProfileResponse>
-    >(fn.data);
+    const response = await handleAsync<BaseApiResponse<GetRestaurantProfileResponse>>(fn.data);
     return response;
   }
 
   async updateProfile(payload: UpdateRestaurantProfilePayload) {
-    const fn = await axiosInstanceapi.patch(
-      `${this.endpoints.base}/me`,
-      payload,
-      {
-        requiresAuth: true,
-      }
-    );
-    const response = await handleAsync<
-      BaseApiResponse<UpdateRestaurantProfileResponse>
-    >(fn.data);
+    const fn = await axiosInstanceapi.patch(`${this.endpoints.base}/me`, payload, {
+      requiresAuth: true,
+    });
+    const response = await handleAsync<BaseApiResponse<UpdateRestaurantProfileResponse>>(fn.data);
     return response;
   }
 
@@ -49,36 +41,21 @@ class RestaurantsService {
     const fn = await axiosInstanceapi.get(`${this.endpoints.base}/me/stats`, {
       requiresAuth: true,
     });
-    const response = await handleAsync<
-      BaseApiResponse<GetRestaurantStatsResponse>
-    >(fn.data);
+    const response = await handleAsync<BaseApiResponse<GetRestaurantStatsResponse>>(fn.data);
     return response;
   }
 
   async updateSettings(payload: UpdateRestaurantSettingsPayload) {
-    const fn = await axiosInstanceapi.patch(
-      `${this.endpoints.base}/me/settings`,
-      payload,
-      {
-        requiresAuth: true,
-      }
-    );
-    const response = await handleAsync<
-      BaseApiResponse<UpdateRestaurantSettingsResponse>
-    >(fn.data);
+    const fn = await axiosInstanceapi.patch(`${this.endpoints.base}/me/settings`, payload, {
+      requiresAuth: true,
+    });
+    const response = await handleAsync<BaseApiResponse<UpdateRestaurantSettingsResponse>>(fn.data);
     return response;
   }
 
   async getRestaurantById(restaurantId: string) {
-    const fn = await axiosInstanceapi.get(
-      `${this.endpoints.base}/${restaurantId}`,
-      {
-        requiresAuth: false, // Public endpoint for consumers
-      }
-    );
-    const response = await handleAsync<
-      BaseApiResponse<GetRestaurantByIdResponse>
-    >(fn.data);
+    const fn = await axiosInstanceapi.get(`${this.endpoints.base}/${restaurantId}`, { requiresAuth: false });
+    const response = await handleAsync<BaseApiResponse<GetRestaurantByIdResponse>>(fn.data);
     return response;
   }
 }

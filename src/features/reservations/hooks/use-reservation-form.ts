@@ -1,4 +1,6 @@
+import { promptLoginForProtectedAction } from "@/features/auth";
 import type { GetPublicListingByIdResponse } from "@/features/listings/services/listings-types";
+import { useAuthStore } from "@/stores/auth-store";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useCreateReservation } from "./use-reservations";
@@ -15,6 +17,8 @@ interface UseReservationFormOptions {
  * Handles quantity selection, validation, and reservation creation
  */
 export const useReservationForm = ({ listing, visible, onClose, onSuccess }: UseReservationFormOptions) => {
+  const userId = useAuthStore((state) => state.user?.id);
+  const isGuest = !userId;
   const [quantity, setQuantity] = useState(1);
   const { mutate: createReservation, isPending } = useCreateReservation();
 
@@ -57,6 +61,11 @@ export const useReservationForm = ({ listing, visible, onClose, onSuccess }: Use
   const handleDecrement = () => handleQuantityChange(-1);
 
   const handleReserve = () => {
+    if (isGuest) {
+      promptLoginForProtectedAction("Please log in to make a reservation.");
+      return;
+    }
+
     if (quantity < 1 || quantity > maxQuantity) {
       Alert.alert("Invalid Quantity", "Please select a valid quantity.");
       return;

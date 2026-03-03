@@ -2,14 +2,10 @@ import { capitalizeFirstLetter, ListingCategories } from "@/features/shared";
 
 // Mock data for the home screen
 export const IMAGE_URLS = {
-  food1:
-    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
-  food2:
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
-  food3:
-    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
-  food4:
-    "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=300&fit=crop",
+  food1: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
+  food2: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop",
+  food3: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop",
+  food4: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=300&fit=crop",
 };
 
 export const categories = [
@@ -38,81 +34,6 @@ export interface FoodItem {
   latitude: number;
   longitude: number;
 }
-
-export const foodItems: FoodItem[] = [
-  {
-    id: 1,
-    imageUrl: IMAGE_URLS.food1,
-    restaurantName: "Green Eats Cafe",
-    distance: "0.4 mi",
-    rating: "4.8",
-    reviews: "120",
-    categories: ["Salads", "Sandwiches", "Pastries"],
-    itemName: "Magic Bag",
-    currentPrice: "$4.99",
-    originalPrice: "$10.00",
-    discount: "-50%",
-    timeRange: "8-9 PM",
-    itemsLeft: "2",
-    isFavorited: false,
-    latitude: 37.7849,
-    longitude: -122.4094,
-  },
-  {
-    id: 2,
-    imageUrl: IMAGE_URLS.food2,
-    restaurantName: "Daily Bread Bakery",
-    distance: "1.2 mi",
-    rating: "4.5",
-    reviews: "85",
-    categories: ["Croissants", "Muffins", "Bread"],
-    itemName: "Pastry Box",
-    currentPrice: "$3.99",
-    originalPrice: "$8.00",
-    discount: "-30%",
-    timeRange: "9-10 PM",
-    itemsLeft: "5",
-    isFavorited: true,
-    latitude: 37.7649,
-    longitude: -122.4294,
-  },
-  {
-    id: 3,
-    imageUrl: IMAGE_URLS.food3,
-    restaurantName: "Urban Bites",
-    distance: "0.8 mi",
-    rating: "4.6",
-    reviews: "240",
-    categories: ["Burgers", "Pizza", "Sides"],
-    itemName: "Surprise Bag",
-    currentPrice: "$5.99",
-    originalPrice: "$12.00",
-    discount: "-40%",
-    timeRange: "7-8 PM",
-    itemsLeft: "3",
-    isFavorited: false,
-    latitude: 37.7749,
-    longitude: -122.4094,
-  },
-  {
-    id: 4,
-    imageUrl: IMAGE_URLS.food4,
-    restaurantName: "Zen Sushi Bar",
-    distance: "1.5 mi",
-    rating: "4.9",
-    reviews: "310",
-    categories: ["Sushi", "Ramen", "Dumplings"],
-    itemName: "Chef's Selection",
-    currentPrice: "$6.99",
-    originalPrice: "$15.00",
-    discount: "-60%",
-    timeRange: "8:30-9:30 PM",
-    itemsLeft: "1",
-    isFavorited: false,
-    latitude: 37.7849,
-    longitude: -122.4294,
-  },
-];
 
 // Transaction type
 export interface Transaction {

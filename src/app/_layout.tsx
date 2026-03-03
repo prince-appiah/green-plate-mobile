@@ -8,10 +8,10 @@ import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import { Slot } from "expo-router";
 import { Platform } from "react-native";
 import AsyncStorageDevTools from "react-native-async-storage-devtools";
 // import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Slot } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { enableScreens } from "react-native-screens";
 import { useSyncQueriesExternal } from "react-query-external-sync";
@@ -35,20 +35,21 @@ export default function Layout() {
 
   return (
     // <GestureHandlerRootView>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <OnboardingProvider>
-            <SafeAreaProvider>
-              <AuthEventListener />
-              <ErrorBoundary>
-                <Slot />
-                <PortalHost />
-                <AsyncStorageDevTools />
-              </ErrorBoundary>
-            </SafeAreaProvider>
-          </OnboardingProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <OnboardingProvider>
+          <SafeAreaProvider>
+            <AuthEventListener />
+            <ErrorBoundary>
+              {/* <ConsumerTabsLayout /> */}
+              <Slot />
+              <PortalHost />
+              <AsyncStorageDevTools />
+            </ErrorBoundary>
+          </SafeAreaProvider>
+        </OnboardingProvider>
+      </AuthProvider>
+    </QueryClientProvider>
     // </GestureHandlerRootView>
   );
 }

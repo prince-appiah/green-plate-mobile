@@ -66,14 +66,14 @@ class ListingsService {
     const queryString = buildQueryParams(query);
     const fn = await axiosInstanceapi.get(
       `${this.endpoints.base}/public?${queryString ? queryString.toString() : ""}`,
-      { requiresAuth: true }
+      // { requiresAuth: true }
     );
     const response = await handleAsync<BaseApiResponse<GetPublicListingsResponse[]>>(fn.data);
     return response;
   }
 
   async getPublicListingById(id: string) {
-    const fn = await axiosInstanceapi.get(`${this.endpoints.base}/public/${id}`, { requiresAuth: true });
+    const fn = await axiosInstanceapi.get(`${this.endpoints.base}/public/${id}`);
     const response = await handleAsync<BaseApiResponse<GetPublicListingByIdResponse>>(fn.data);
     return response;
   }

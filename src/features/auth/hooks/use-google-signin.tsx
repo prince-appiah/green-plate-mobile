@@ -1,17 +1,13 @@
-import {
-  GoogleSignin,
-  isErrorWithCode,
-  isSuccessResponse,
-} from "@react-native-google-signin/google-signin";
+import { GoogleSignin, isErrorWithCode, isSuccessResponse } from "@react-native-google-signin/google-signin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../services/auth.service";
 import { useGetUserInfo } from "./use-auth";
 
+import { ONBOARDING_KEYS } from "@/features/onboarding";
 import { tokenStorage } from "@/lib/token-storage";
 import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import { authQueryKeys } from "./auth-query-keys";
-import { ONBOARDING_KEYS } from "@/features/onboarding";
 
 export const useGoogleSignin = () => {
   const { refetch, data: userInfoData } = useGetUserInfo();
@@ -25,10 +21,7 @@ export const useGoogleSignin = () => {
         setLoading(true);
         // Save both access and refresh tokens
         if (data.data.accessToken && data.data.refreshToken) {
-          await tokenStorage.setTokens(
-            data.data.accessToken,
-            data.data.refreshToken
-          );
+          await tokenStorage.setTokens(data.data.accessToken, data.data.refreshToken);
         }
 
         // CRITICAL: Remove stale user info cache BEFORE refetching
@@ -60,10 +53,7 @@ export const useGoogleSignin = () => {
             });
 
             // Check onboarding first - if not completed, redirect and return early
-            if (
-              !response.data.onboardingCompleted ||
-              response.data.role === null
-            ) {
+            if (!response.data.onboardingCompleted || response.data.role === null) {
               router.replace("/(onboarding)/welcome");
               return; // Early return to prevent further navigation
             }

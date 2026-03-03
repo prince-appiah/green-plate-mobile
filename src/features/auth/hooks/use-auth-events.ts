@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { authEventEmitter } from '@/lib/auth-event-emitter';
-import { router, useSegments } from 'expo-router';
+import { authEventEmitter } from "@/lib/auth-event-emitter";
+import { router, useSegments } from "expo-router";
+import { useEffect } from "react";
 
 type AuthEventOptions = {
   onLogout?: () => void;
@@ -27,8 +27,8 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
     onLogout,
     onTokenRefreshFailed,
     onUnauthorized,
-    autoRedirect = true,
-    redirectTo = '/(auth)/login',
+    autoRedirect = false,
+    redirectTo = "/(auth)/login",
   } = options;
 
   const segments = useSegments();
@@ -38,7 +38,7 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
       const currentRoute = segments[segments.length - 1];
       // Check if we are on login, welcome, or any other public auth screen
       // Add other auth route names if necessary
-      return currentRoute === 'login' || currentRoute === 'welcome' || segments[0] === '(auth)';
+      return currentRoute === "login" || currentRoute === "welcome" || segments[0] === "(auth)";
     };
 
     const handleLogout = () => {
@@ -66,15 +66,9 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
     };
 
     // Subscribe to events
-    const unsubscribeLogout = authEventEmitter.on('logout', handleLogout);
-    const unsubscribeRefreshFailed = authEventEmitter.on(
-      'token-refresh-failed',
-      handleTokenRefreshFailed
-    );
-    const unsubscribeUnauthorized = authEventEmitter.on(
-      'unauthorized',
-      handleUnauthorized
-    );
+    const unsubscribeLogout = authEventEmitter.on("logout", handleLogout);
+    const unsubscribeRefreshFailed = authEventEmitter.on("token-refresh-failed", handleTokenRefreshFailed);
+    const unsubscribeUnauthorized = authEventEmitter.on("unauthorized", handleUnauthorized);
 
     // Cleanup subscriptions on unmount
     return () => {
@@ -82,13 +76,5 @@ export function useAuthEvents(options: AuthEventOptions = {}) {
       unsubscribeRefreshFailed();
       unsubscribeUnauthorized();
     };
-  }, [
-    onLogout,
-    onTokenRefreshFailed,
-    onUnauthorized,
-    autoRedirect,
-    redirectTo,
-    segments,
-  ]);
+  }, [onLogout, onTokenRefreshFailed, onUnauthorized, autoRedirect, redirectTo, segments]);
 }
-

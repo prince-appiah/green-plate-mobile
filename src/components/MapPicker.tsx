@@ -23,9 +23,179 @@ interface MapPickerProps {
   };
   inline?: boolean; // If true, show map inline instead of in modal
   height?: number; // Height for inline map (default: 300)
+  latitudeDelta?: number; // Custom zoom level - smaller = more zoomed in (default: 0.0922 for modal, 0.03 for inline)
+  longitudeDelta?: number; // Custom zoom level - smaller = more zoomed in (default: 0.0421 for modal, 0.015 for inline)
 }
 
-export default function MapPicker({ onLocationSelect, initialLocation, inline = false, height = 400 }: MapPickerProps) {
+// const GRAYSCALE_MAP_STYLE = [
+//   {
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#f5f5f5",
+//       },
+//     ],
+//   },
+//   {
+//     elementType: "labels.icon",
+//     stylers: [
+//       {
+//         visibility: "off",
+//       },
+//     ],
+//   },
+//   {
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#616161",
+//       },
+//     ],
+//   },
+//   {
+//     elementType: "labels.text.stroke",
+//     stylers: [
+//       {
+//         color: "#f5f5f5",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "administrative.land_parcel",
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#bdbdbd",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "poi",
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#eeeeee",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "poi",
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#757575",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "poi.park",
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#e5e5e5",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "poi.park",
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#9e9e9e",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "road",
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#ffffff",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "road.arterial",
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#757575",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "road.highway",
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#dadada",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "road.highway",
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#616161",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "road.local",
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#9e9e9e",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "transit.line",
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#e5e5e5",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "transit.station",
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#eeeeee",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "water",
+//     elementType: "geometry",
+//     stylers: [
+//       {
+//         color: "#c9c9c9",
+//       },
+//     ],
+//   },
+//   {
+//     featureType: "water",
+//     elementType: "labels.text.fill",
+//     stylers: [
+//       {
+//         color: "#9e9e9e",
+//       },
+//     ],
+//   },
+// ];
+
+export default function MapPicker({
+  onLocationSelect,
+  initialLocation,
+  inline = false,
+  height = 400,
+  latitudeDelta = inline ? 0.005 : 0.0922,
+  longitudeDelta = inline ? 0.005 : 0.0421,
+}: MapPickerProps) {
   const [isMapReady, setIsMapReady] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{
@@ -73,15 +243,12 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
 
   // For inline mode, automatically get location when component mounts
   useEffect(() => {
-    if (inline && !initialLocation && !selectedLocation && !hasRequestedLocation && !isLoadingLocation) {
-      // Small delay to ensure map is ready
-      const timer = setTimeout(() => {
-        setHasRequestedLocation(true);
-        getCurrentLocation();
-      }, 100);
-      return () => clearTimeout(timer);
+    if (inline && !initialLocation && !hasRequestedLocation) {
+      // Request location immediately without delay for inline mode
+      setHasRequestedLocation(true);
+      getCurrentLocation();
     }
-  }, [inline, initialLocation]);
+  }, [inline, initialLocation, hasRequestedLocation]);
 
   useEffect(() => {
     if (modalVisible && !selectedLocation && !isLoadingLocation) {
@@ -98,16 +265,16 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
       return {
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitudeDelta,
+        longitudeDelta,
       };
     }
     if (selectedLocation) {
       return {
         latitude: selectedLocation.latitude,
         longitude: selectedLocation.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitudeDelta,
+        longitudeDelta,
       };
     }
     // Use a reasonable default (San Francisco area) instead of world map
@@ -115,8 +282,8 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
     return {
       latitude: 37.7749,
       longitude: -122.4194,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
+      latitudeDelta,
+      longitudeDelta,
     };
   };
 
@@ -214,8 +381,8 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
         const region = {
           latitude,
           longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta,
+          longitudeDelta,
         };
         mapRef.current.animateToRegion(region, 1000);
       }
@@ -243,8 +410,8 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
         {
           latitude,
           longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta,
+          longitudeDelta,
         },
         500,
       );
@@ -292,8 +459,8 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
             onPress={handleMapPress}
             showsUserLocation={true}
             showsMyLocationButton={true}
-            // loadingEnabled={false}
-            mapType="satellite"
+            mapType="standard"
+            // customMapStyle={GRAYSCALE_MAP_STYLE}
             onMapReady={handleOnMapReady}
             // onMapReady={() => {
             //   console.log("Map ref loaded:", mapRef.current);
@@ -437,8 +604,8 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
                   ? {
                       latitude: selectedLocation.latitude,
                       longitude: selectedLocation.longitude,
-                      latitudeDelta: 0.0922,
-                      longitudeDelta: 0.0421,
+                      latitudeDelta,
+                      longitudeDelta,
                     }
                   : getDefaultRegion()
               }
@@ -447,15 +614,15 @@ export default function MapPicker({ onLocationSelect, initialLocation, inline = 
                   ? {
                       latitude: selectedLocation.latitude,
                       longitude: selectedLocation.longitude,
-                      latitudeDelta: 0.0922,
-                      longitudeDelta: 0.0421,
+                      latitudeDelta,
+                      longitudeDelta,
                     }
                   : getDefaultRegion()
               }
               onPress={handleMapPress}
               showsUserLocation={true}
               showsMyLocationButton={false}
-              mapType="standard"
+              mapType="hybrid"
               loadingEnabled={true}
             >
               {selectedLocation && (

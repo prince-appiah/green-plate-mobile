@@ -1,5 +1,7 @@
+import { promptLoginForProtectedAction } from "@/features/auth";
 import { useGetPublicListingById } from "@/features/listings/hooks/use-public-listings";
 import { formatTimeRange } from "@/features/shared";
+import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import { Alert } from "react-native";
 import { getReservationStatusConfig } from "../helpers";
@@ -11,6 +13,8 @@ import { useUpdateMyReservationStatus } from "./use-restaurant-reservations";
  * Handles data fetching, status management, and cancellation logic
  */
 export const useReservationDetailsModel = (reservationId: string) => {
+  const userId = useAuthStore((state) => state.user?.id);
+  const isGuest = !userId;
   // Fetch reservation data
   const {
     data: reservationResponse,
@@ -44,6 +48,11 @@ export const useReservationDetailsModel = (reservationId: string) => {
 
   // Handle reservation cancellation
   const handleCancel = () => {
+    if (isGuest) {
+      promptLoginForProtectedAction("Please log in to cancel reservations.");
+      return;
+    }
+
     if (!reservation) return;
 
     Alert.alert(

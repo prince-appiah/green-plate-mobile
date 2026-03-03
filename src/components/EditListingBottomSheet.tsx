@@ -166,19 +166,6 @@ export default function EditListingBottomSheet({
       return;
     }
 
-    // Format time strings from "HH:mm" to "HH:mm:ss" format
-    const formatTimeString = (timeString: string): string => {
-      // If already in HH:mm:ss format, return as is
-      if (timeString.split(":").length === 3) {
-        return timeString;
-      }
-      // Otherwise, add ":00" for seconds
-      return `${timeString}:00`;
-    };
-
-    const pickupStartTime = formatTimeString(data.pickupStart);
-    const pickupEndTime = formatTimeString(data.pickupEnd);
-
     const payload = {
       listingId,
       title: data.title,
@@ -186,12 +173,12 @@ export default function EditListingBottomSheet({
       category: data.category,
       originalPrice: originalPriceNum,
       discountedPrice: salePriceNum,
-      currency: listing?.currency || "USD",
+      currency: listing?.currency || "GHS",
       quantityTotal: Number(data.quantity),
       maxPerUser: Number(data.maxPerUser),
       pickup: {
-        startTime: pickupStartTime, // Send as time string
-        endTime: pickupEndTime, // Send as time string
+        startTime: data.pickupStart, // Send as HH:mm format
+        endTime: data.pickupEnd, // Send as HH:mm format
         location: {
           coordinates: locationData.coordinates,
         },

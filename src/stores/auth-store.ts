@@ -1,4 +1,5 @@
 import { BaseUser } from "@/features/shared";
+import { tokenStorage } from "@/lib/token-storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -25,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (isLoading) => set({ isLoading }),
       signOut: async () => {
         set({ user: null, isLoading: false });
+        await tokenStorage.clearTokens();
         await AsyncStorage.removeItem(AUTH_STORE_KEY);
       },
       // clearUser: () => set({ user: null }),
@@ -33,6 +35,6 @@ export const useAuthStore = create<AuthState>()(
       name: AUTH_STORE_KEY,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ user: state.user }), // Only persist user, not loading state
-    }
-  )
+    },
+  ),
 );

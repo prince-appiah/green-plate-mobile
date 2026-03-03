@@ -1,26 +1,33 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
-import { View, ActivityIndicator, Text } from "react-native";
 import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
+import { useAuthStore } from "@/stores/auth-store";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator } from "react-native";
 
 export default function Index() {
   const router = useRouter();
+  const { user, isLoading } = useAuthStore();
   const [isMounted, setIsMounted] = useState(false);
 
+  // Ensure routing logic runs only after first mount
   useEffect(() => {
-    // Ensure component is mounted before navigating
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (isMounted) {
-      // Use setTimeout to ensure navigation happens after render
-      const timer = setTimeout(() => {
-        router.replace("/(auth)/login");
-      }, 0);
-      return () => clearTimeout(timer);
+    // Wait for initial mount and auth loading to finish
+    if (!isMounted || isLoading) return;
+
+    // Navigate based on auth state
+    if (!user) {
+      router.replace("/(auth)/login");
+      return;
     }
-  }, [isMounted]);
+
+    const targetRoute = user.role === "restaurantOwner" ? "/(restaurants)" : "/(consumers)";
+
+    router.replace(targetRoute);
+  }, [user, isLoading, isMounted, router]);
 
   return (
     <CustomSafeAreaView

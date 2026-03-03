@@ -21,7 +21,7 @@ export const useGetUserInfo = () => {
   const { data, isPending, refetch, error } = useQuery({
     queryKey: authQueryKeys.getUserInfo(),
     queryFn: () => authService.getUserInfo(),
-    enabled: !!user && !!hasToken,
+    enabled: !!user,
     // retry: false, // Don't retry on failure
   });
 

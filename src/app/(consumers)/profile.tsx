@@ -1,22 +1,13 @@
 import ImpactCard from "@/components/ImpactCard";
 import PointsCard, { UserPoints } from "@/components/PointsCard";
 import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
-import { mockImpact } from "@/data/mockData";
-import { useGetProfile, useGetProfileSuspense } from "@/features/accounts";
+import { useGetProfile } from "@/features/accounts";
 import { useGetUserInfo } from "@/features/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  View as RNView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type ProfileView = "main" | "achievements" | "history";
@@ -25,6 +16,7 @@ export default function ProfileScreen() {
   const [currentView, setCurrentView] = useState<ProfileView>("main");
   const insets = useSafeAreaInsets();
   const user = useAuthStore((state) => state.user);
+  const isGuest = !user?.id;
   const { data: userInfo, isPending: isLoadingUser } = useGetUserInfo();
   const { data: profileResponse, refetch, isPending } = useGetProfile();
   const profile = profileResponse?.data;
@@ -38,13 +30,13 @@ export default function ProfileScreen() {
       transactionCount: profile?.points.reservationCount ?? 0,
       currentBadge: (profile?.points.currentBadge as UserPoints["currentBadge"]) ?? "none",
     }),
-    [profile?.points.totalPoints, profile?.points.reservationCount, profile?.points.currentBadge]
+    [profile?.points.totalPoints, profile?.points.reservationCount, profile?.points.currentBadge],
   );
 
-  if (isLoadingUser) {
+  if (isLoadingUser && !isGuest) {
     return (
       <CustomSafeAreaView useSafeArea>
-        <RNView
+        <View
           style={{
             flex: 1,
             justifyContent: "center",
@@ -52,7 +44,7 @@ export default function ProfileScreen() {
           }}
         >
           <ActivityIndicator size="large" color="#16a34a" />
-        </RNView>
+        </View>
       </CustomSafeAreaView>
     );
   }
@@ -69,6 +61,27 @@ export default function ProfileScreen() {
     silver: "🥈",
     gold: "🥇",
   };
+
+  if (isGuest) {
+    return (
+      <CustomSafeAreaView useSafeArea>
+        <View className="flex-1 items-center justify-center px-6">
+          <View className="w-16 h-16 items-center justify-center rounded-full bg-[#16a34a]/10 mb-4">
+            <Ionicons name="person-outline" size={32} color="#16a34a" />
+          </View>
+          <Text className="text-lg font-semibold text-[#1a2e1f] mb-2 text-center">
+            Profile is available after login
+          </Text>
+          <Text className="text-sm text-[#657c69] text-center mb-6">
+            Log in to view your points, impact, and account details.
+          </Text>
+          <TouchableOpacity onPress={() => router.push("/(auth)/login")} className="bg-[#16a34a] rounded-xl px-6 py-3">
+            <Text className="text-white font-semibold">Log in</Text>
+          </TouchableOpacity>
+        </View>
+      </CustomSafeAreaView>
+    );
+  }
 
   return (
     <CustomSafeAreaView useSafeArea>

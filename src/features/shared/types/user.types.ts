@@ -8,9 +8,7 @@ export const USER_ROLES_VALUES = Object.values(USER_ROLES);
 
 export const USER_ROLES_KEYS = Object.keys(USER_ROLES);
 
-export const USER_ROLES_MAP = Object.fromEntries(
-  Object.entries(USER_ROLES).map(([key, value]) => [value, key])
-);
+export const USER_ROLES_MAP = Object.fromEntries(Object.entries(USER_ROLES).map(([key, value]) => [value, key]));
 export type IUserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
 export interface BaseUser {
@@ -39,8 +37,10 @@ export interface Consumer extends BaseUser {
 
 export interface Restaurant {
   name: string; // TODO: Change all name to restaurantName
-  description?: string;
+  description: string;
   website?: string;
+  phone: string;
+  email: string;
   address?: {
     street: string;
     city: string;

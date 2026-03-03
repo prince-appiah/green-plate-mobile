@@ -8,12 +8,15 @@ import {
 } from "@/components/screens/consumers/bookings";
 import CustomSafeAreaView from "@/components/ui/SafeAreaView/safe-area-view";
 import { useReservationDetailsModel } from "@/features/reservations/hooks/use-reservation-details-model";
+import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 function ReservationDetailsContent() {
+  const userId = useAuthStore((state) => state.user?.id);
+  const isGuest = !userId;
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
     reservation,
@@ -27,6 +30,25 @@ function ReservationDetailsContent() {
     handleRefresh,
     handleCancel,
   } = useReservationDetailsModel(id);
+
+  if (isGuest) {
+    return (
+      <View className="flex-1 items-center justify-center py-12 px-6">
+        <View className="w-16 h-16 items-center justify-center rounded-full bg-[#16a34a]/10 mb-4">
+          <Ionicons name="receipt-outline" size={32} color="#16a34a" />
+        </View>
+        <Text className="text-lg font-semibold text-[#1a2e1f] mb-2 text-center">
+          Reservation details are unavailable for guests
+        </Text>
+        <Text className="text-sm text-[#657c69] text-center mb-6">
+          Log in to view your booking details and manage reservations.
+        </Text>
+        <TouchableOpacity onPress={() => router.push("/(auth)/login")} className="bg-[#16a34a] rounded-xl px-6 py-3">
+          <Text className="text-white font-semibold">Log in</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (

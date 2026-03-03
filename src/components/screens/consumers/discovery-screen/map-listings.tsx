@@ -1,7 +1,7 @@
 import { useGetPublicListings } from "@/features/listings/hooks/use-public-listings";
 import { GetPublicListingsQuery } from "@/features/listings/services/listings-types";
 import React from "react";
-import { MapView } from ".";
+import { MapView } from "./map-view";
 
 interface MapListingsProps {
   queryParams: GetPublicListingsQuery;

@@ -130,7 +130,7 @@ function DiscoverContent() {
   );
 }
 
-export default function HomeScreen() {
+export default function ConsumersHomeScreen() {
   return (
     <CustomSafeAreaView>
       <DiscoverContent />

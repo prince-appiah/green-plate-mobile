@@ -1,4 +1,5 @@
 import { ReservationStatus } from "@/features/shared";
+import { useAuthStore } from "@/stores/auth-store";
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { useGetMyReservations } from "./use-reservations";
@@ -20,6 +21,8 @@ export const STATUS_FILTER_OPTIONS: Array<{
  * Handles status filtering, navigation, and data fetching
  */
 export const useBookingsList = () => {
+  const userId = useAuthStore((state) => state.user?.id);
+  const isGuest = !userId;
   const [selectedStatus, setSelectedStatus] = useState<ReservationStatus | "all">("all");
 
   const { data: reservationsResponse, isPending, error, refetch } = useGetMyReservations();
@@ -52,6 +55,7 @@ export const useBookingsList = () => {
     // State
     selectedStatus,
     setSelectedStatus,
+    isGuest,
     isPending,
     error,
 
