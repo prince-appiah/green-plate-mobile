@@ -1,11 +1,13 @@
-import { BaseUser, User } from "@/features/shared";
-import axiosInstanceapi, { BaseApiResponse } from "@/lib/axios";
-import { handleAsync } from "@/lib/try-catch";
-import { GoogleSigninResponse } from "./auth-types";
+import type { BaseUser } from "@/features/shared";
+import type { BaseApiResponse } from "@/lib/axios";
+import axiosInstanceapi from "@/lib/axios";
+import { tokenStorage } from "@/lib/token-storage";
+import { mapSessionUserToBaseUser } from "../utils/session-mapper";
+
+const AUTH_ME_PATH = "/auth/me";
 
 class AuthService {
   private static instance: AuthService;
-  private readonly endpoints = { base: "/auth" } as const;
 
   public static getInstance(): AuthService {
     if (!AuthService.instance) {
@@ -14,39 +16,46 @@ class AuthService {
     return AuthService.instance;
   }
 
-  async googleSignin(token: string) {
-    const fn = await axiosInstanceapi.post(`${this.endpoints.base}/google`, {
-      token,
-    });
-    const response = await handleAsync<BaseApiResponse<GoogleSigninResponse>>(fn.data);
-    return response;
-  }
+  async getSession(): Promise<BaseApiResponse<BaseUser | null>> {
+    const token = await tokenStorage.getToken();
+    if (!token) {
+      return {
+        success: false,
+        message: "Not authenticated",
+        data: null,
+        timestamp: new Date(),
+      };
+    }
 
-  async getUserInfo() {
-    const fn = await axiosInstanceapi.get(`${this.endpoints.base}/me`, {
-      requiresAuth: true,
-    });
-    const response = await handleAsync<BaseApiResponse<BaseUser>>(fn.data);
-    return response;
-  }
-
-  async refreshToken(refreshToken: string) {
-    const fn = await axiosInstanceapi.post(`${this.endpoints.base}/refresh`, {
-      refreshToken,
-    });
-    const response = await handleAsync<
-      BaseApiResponse<{
-        accessToken: string;
-        refreshToken?: string; // Optional if backend rotates refresh tokens
-      }>
-    >(fn.data);
-    return response;
-  }
-
-  async logout() {
-    const fn = await axiosInstanceapi.post(`${this.endpoints.base}/logout`);
-    const response = await handleAsync<BaseApiResponse<User>>(fn.data);
-    return response;
+    try {
+      const { data: apiResponse } = await axiosInstanceapi.get<BaseApiResponse<unknown>>(AUTH_ME_PATH, {
+        requiresAuth: true,
+      });
+      const raw = apiResponse?.data as Record<string, unknown> | null | undefined;
+      const user = mapSessionUserToBaseUser(raw ? { ...raw, id: raw.id as string, userId: raw.id as string } : null);
+      if (!user) {
+        return {
+          success: false,
+          message: "User not found",
+          data: null,
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: true,
+        message: "Success",
+        data: user,
+        timestamp: new Date(),
+      };
+    } catch {
+      return {
+        success: false,
+        message: "Failed to get session",
+        data: null,
+        timestamp: new Date(),
+      };
+    }
   }
 }
-export const authService = new AuthService();
+
+export const authService = AuthService.getInstance();

@@ -1,6 +1,6 @@
-import { User } from '../types/user.types';
+import { User, IUserRole } from '../types/user.types';
 
-export type Permission = 
+export type Permission =
   | 'view_analytics'
   | 'manage_listings'
   | 'manage_orders'
@@ -16,15 +16,18 @@ export function hasPermission(
   user: User | null | undefined,
   permission: Permission
 ): boolean {
-  if (!user) return false;
+  if (!user || !('role' in user)) return false;
+
+  const role = (user as { role: IUserRole }).role;
 
   // Role-based default permissions
-  const rolePermissions: Record<User['role'], Permission[]> = {
+  const rolePermissions: Record<IUserRole, Permission[]> = {
     consumer: ['create_bookings', 'cancel_bookings'],
-    restaurant: ['manage_listings', 'manage_orders', 'view_analytics'],
+    restaurantOwner: ['manage_listings', 'manage_orders', 'view_analytics'],
+    admin: ['view_analytics', 'manage_listings', 'manage_orders', 'view_reports', 'manage_settings'],
   };
 
-  return rolePermissions[user.role]?.includes(permission) ?? false;
+  return rolePermissions[role]?.includes(permission) ?? false;
 }
 
 /**

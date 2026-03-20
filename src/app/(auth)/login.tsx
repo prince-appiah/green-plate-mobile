@@ -1,11 +1,16 @@
 import { useGoogleSignin } from "@/features/auth/hooks/use-google-signin";
 import React from "react";
-import { ImageBackground, StatusBar, Text, View } from "react-native";
+import {
+  ImageBackground,
+  StatusBar,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 
 // @ts-ignore
 import loginBg from "@/assets/images/login-bg.png";
-
-import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 
 export default function LoginScreen() {
   const { isPending, handleGoogleAuthInit } = useGoogleSignin();
@@ -25,18 +30,18 @@ export default function LoginScreen() {
           money.
         </Text>
 
-        {/* Google Login Button */}
-        <GoogleSigninButton
+        {/* Google Login Button - React Native Google Sign-In */}
+        <TouchableOpacity
           onPress={handleGoogleAuthInit}
-          size={GoogleSigninButton.Size.Wide}
           disabled={isPending}
-          color={GoogleSigninButton.Color.Light}
-          style={{
-            backgroundColor: "#5c5c99",
-            borderRadius: 16,
-            height: 56,
-          }}
-        />
+          className="bg-[#5c5c99] rounded-2xl h-14 w-full items-center justify-center"
+        >
+          {isPending ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text className="text-white font-semibold text-base">Sign in with Google</Text>
+          )}
+        </TouchableOpacity>
       </View>
     </ImageBackground>
   );

@@ -5,7 +5,7 @@ module.exports = ({ config }: { config: ExpoConfig }): ExpoConfig => {
   return {
     name: "clean-plate",
     slug: "clean-plate",
-    scheme: "acme",
+    scheme: process.env.APP_SCHEME || "greenplate",
     version: "1.0.0",
     orientation: "portrait",
     userInterfaceStyle: "automatic",
@@ -30,12 +30,6 @@ module.exports = ({ config }: { config: ExpoConfig }): ExpoConfig => {
       output: "server",
     },
     plugins: [
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          iosUrlScheme: "com.googleusercontent.apps.610621271112-o11qvcqeqeilvjk8qr8ejl8e9el47t0a",
-        },
-      ],
       [
         "expo-asset",
         {

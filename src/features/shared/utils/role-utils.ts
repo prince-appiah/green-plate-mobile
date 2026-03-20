@@ -1,10 +1,16 @@
 import { UserRole, User, Consumer, Restaurant } from '../types/user.types';
 
+/** Get role only when user has a role (Consumer/BaseUser); Restaurant has no role */
+function getRole(user: User | null | undefined): UserRole | undefined {
+  if (!user || !('role' in user)) return undefined;
+  return (user as { role: UserRole }).role;
+}
+
 /**
  * Check if user has a specific role
  */
 export function hasRole(user: User | null | undefined, role: UserRole): boolean {
-  return user?.role === role;
+  return getRole(user) === role;
 }
 
 /**
@@ -14,8 +20,8 @@ export function hasAnyRole(
   user: User | null | undefined,
   roles: UserRole[]
 ): boolean {
-  if (!user) return false;
-  return roles.includes(user.role);
+  const r = getRole(user);
+  return r !== undefined && roles.includes(r);
 }
 
 /**
@@ -25,19 +31,19 @@ export function hasAllRoles(
   user: User | null | undefined,
   roles: UserRole[]
 ): boolean {
-  if (!user) return false;
-  return roles.every(role => user.role === role);
+  const r = getRole(user);
+  return r !== undefined && roles.every(role => r === role);
 }
 
 /**
  * Type-safe role checkers
  */
 export function isConsumer(user: User | null | undefined): user is Consumer {
-  return user?.role === 'consumer';
+  return getRole(user) === 'consumer';
 }
 
 export function isRestaurant(user: User | null | undefined): user is Restaurant {
-  return user?.role === 'restaurant';
+  return getRole(user) === 'restaurantOwner';
 }
 
 /**
@@ -47,7 +53,7 @@ export function getRoleRoute(role: UserRole | undefined): string {
   switch (role) {
     case 'consumer':
       return '/(consumers)';
-    case 'restaurant':
+    case 'restaurantOwner':
       return '/(restaurants)';
     default:
       return '/(auth)/login';
@@ -69,13 +75,14 @@ export function canAccessRoute(
     return true;
   }
 
-  // Role-specific routes
+  // Role-specific routes (IUserRole: consumer | restaurantOwner | admin)
   const roleRoutes: Record<UserRole, string[]> = {
     consumer: ['/(consumers)'],
-    restaurant: ['/(restaurants)'],
+    restaurantOwner: ['/(restaurants)'],
+    admin: ['/(auth)/login'],
   };
 
-  return roleRoutes[userRole]?.some(allowedRoute => 
+  return roleRoutes[userRole]?.some(allowedRoute =>
     route.startsWith(allowedRoute)
   ) ?? false;
 }

@@ -8,8 +8,11 @@ export const USER_ROLES_VALUES = Object.values(USER_ROLES);
 
 export const USER_ROLES_KEYS = Object.keys(USER_ROLES);
 
-export const USER_ROLES_MAP = Object.fromEntries(Object.entries(USER_ROLES).map(([key, value]) => [value, key]));
+export const USER_ROLES_MAP = Object.fromEntries(
+  Object.entries(USER_ROLES).map(([key, value]) => [value, key]),
+);
 export type IUserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+export type UserRole = IUserRole;
 
 export interface BaseUser {
   id: string;
@@ -41,6 +44,8 @@ export interface Restaurant {
   website?: string;
   phone: string;
   email: string;
+  /** Only Consumer has role; Restaurant is profile data */
+  role?: never;
   address?: {
     street: string;
     city: string;

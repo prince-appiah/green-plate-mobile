@@ -10,11 +10,7 @@ const withAndroidPlugin: ConfigPlugin = (config) => {
     if (!mainApplication.$) return cfg;
     if (!mainApplication["meta-data"]) mainApplication["meta-data"] = [];
 
-    addMetaDataItemToMainApplication(
-      mainApplication,
-      "com.google.android.geo.GOOGLE_MAPS_API_KEY",
-      googleMapsApiKey || "",
-    );
+    addMetaDataItemToMainApplication(mainApplication, "com.google.android.geo.API_KEY", googleMapsApiKey || "");
 
     // Alternative if I dont want to use the helper function or I face issues with it.
     // mainApplication["meta-data"].push({

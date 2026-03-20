@@ -88,9 +88,9 @@ export default function RestaurantInfoScreen() {
       website: website.trim(),
       address: addressData
         ? {
-            street: addressData.street,
-            city: addressData.city,
-            country: addressData.country,
+            street: addressData.street ?? "",
+            city: addressData.city ?? "",
+            country: addressData.country ?? "",
             coordinates: addressData.coordinates,
             postalCode: addressData.postalCode,
           }

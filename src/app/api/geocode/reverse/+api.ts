@@ -157,14 +157,14 @@ export async function POST(request: Request) {
         }
       }
 
-      // Return address data even if some fields are missing
+      const parsedPostal = postalCode ? parseInt(postalCode, 10) : NaN;
       const addressData: AddressData = {
         street:
           street.trim() || formattedAddress.split(",")[0]?.trim() || "Location",
         city: city || "",
         country: country || "",
         coordinates: [longitude, latitude], // [longitude, latitude] format
-        postalCode: postalCode || undefined,
+        postalCode: !isNaN(parsedPostal) ? parsedPostal : undefined,
         state: state || undefined,
       };
 
