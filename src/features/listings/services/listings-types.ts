@@ -38,6 +38,8 @@ export interface CreateListingResponse {
 export interface GetOwnListingsQuery extends QueryObject {
   category?: string;
   status?: ListingStatus;
+  page?: number;
+  limit?: number;
 }
 
 export interface UpdateListingPayload extends Omit<CreateListingPayload, "photoUrls" | "id"> {
@@ -50,6 +52,8 @@ export interface GetPublicListingsQuery extends QueryObject {
   radiusKm?: number;
   longitude?: number;
   latitude?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface GetPublicListingsResponse extends Listing {

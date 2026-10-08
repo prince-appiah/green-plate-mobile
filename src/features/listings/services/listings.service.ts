@@ -1,5 +1,5 @@
 import { Listing } from "@/features/shared";
-import axiosInstanceapi, { BaseApiResponse } from "@/lib/axios";
+import axiosInstanceapi, { BaseApiResponse, PaginatedData } from "@/lib/axios";
 import { handleAsync } from "@/lib/try-catch";
 import { buildQueryParams } from "@/lib/utils";
 import {
@@ -35,7 +35,7 @@ class ListingsService {
     const fn = await axiosInstanceapi.get(`${this.endpoints.base}?${queryString ? queryString.toString() : ""}`, {
       requiresAuth: true,
     });
-    const response = await handleAsync<BaseApiResponse<Listing[]>>(fn.data);
+    const response = await handleAsync<BaseApiResponse<PaginatedData<Listing>>>(fn.data);
     return response;
   }
 
@@ -68,7 +68,7 @@ class ListingsService {
       `${this.endpoints.base}/public?${queryString ? queryString.toString() : ""}`,
       // { requiresAuth: true }
     );
-    const response = await handleAsync<BaseApiResponse<GetPublicListingsResponse[]>>(fn.data);
+    const response = await handleAsync<BaseApiResponse<PaginatedData<GetPublicListingsResponse>>>(fn.data);
     return response;
   }
 

@@ -20,16 +20,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function RestaurantListingsScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = 60 + Math.max(insets.bottom, 8);
-  const { data: listingsResponse, isPending, error, refetch } = useGetOwnListings();
+  const { data: listingsResponse, isPending, error, refetch } = useGetOwnListings({ limit: 100 });
   const [editingListingId, setEditingListingId] = useState<string | null>(null);
   const updateListingMutation = useUpdateListing();
 
   // Map API listings to UI format
   const listings = useMemo(() => {
-    if (!listingsResponse?.success || !listingsResponse?.data) {
+    const items = listingsResponse?.data?.data;
+    if (!listingsResponse?.success || !Array.isArray(items)) {
       return [];
     }
-    return listingsResponse.data.map(mapListingToRestaurantListing);
+    return items.map(mapListingToRestaurantListing);
   }, [listingsResponse]);
 
   const activeListings = listings.filter((l) => l.status === "active");
@@ -37,10 +38,11 @@ export default function RestaurantListingsScreen() {
 
   // Get full listing data from API response
   const getFullListing = (listingId: string): Listing | null => {
-    if (!listingsResponse?.success || !listingsResponse?.data) {
+    const items = listingsResponse?.data?.data;
+    if (!listingsResponse?.success || !Array.isArray(items)) {
       return null;
     }
-    return listingsResponse.data.find((l) => l.id === listingId) || null;
+    return items.find((l) => l.id === listingId) || null;
   };
 
   // Handle pause listing

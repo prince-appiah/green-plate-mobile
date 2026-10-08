@@ -9,6 +9,14 @@ export type BaseApiResponse<T = unknown> = {
   timestamp: Date;
 };
 
+export type PaginatedData<T> = {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 const axiosInstanceapi = Axios.create({
   baseURL: process.env.EXPO_PUBLIC_BACKEND_URL,
   headers: {

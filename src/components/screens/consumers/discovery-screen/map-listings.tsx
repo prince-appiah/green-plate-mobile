@@ -27,7 +27,7 @@ export function MapListings({
   isLoadingLocation,
 }: MapListingsProps) {
   const { data: listingsResponse } = useGetPublicListings(queryParams);
-  const listings = listingsResponse?.data || [];
+  const listings = Array.isArray(listingsResponse?.data?.data) ? listingsResponse.data.data : [];
 
   return (
     <MapView

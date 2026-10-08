@@ -23,7 +23,7 @@ export function ListingsList({
   userLocation,
 }: ListingsListProps) {
   const { data: listingsResponse, refetch, isPending } = useGetPublicListingsSuspense(queryParams);
-  const listings = listingsResponse.data;
+  const listings = Array.isArray(listingsResponse?.data?.data) ? listingsResponse.data.data : [];
 
   const mapListingToFoodCard = (listing: GetPublicListingsResponse) => {
     const imageUrl = listing.photoUrls?.[0] || "https://via.placeholder.com/400x300/e5e7eb/9ca3af?text=Food+Image";
